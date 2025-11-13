@@ -20,7 +20,6 @@ public class GameEngine implements Observer {
     private final List<Room> rooms;
 	private Room currentRoom;
 	private int currentRoomNumber;
-    private GameCharacter currentFish;
 	private int lastTickProcessed = 0;
 	
 	public GameEngine() {
@@ -52,7 +51,6 @@ public class GameEngine implements Observer {
         this.currentRoom = this.rooms.get(this.currentRoomNumber ++);
         this.currentRoom.loadRoom();
         this.currentRoom.initializeRoom();
-        this.currentFish = this.currentRoom.getBigFish();
         ImageGUI.getInstance().update();
 	}
     public void endGame(String message) {
@@ -72,11 +70,22 @@ public class GameEngine implements Observer {
 
 			int k = ImageGUI.getInstance().keyPressed();
 
-            if(k == KeyEvent.VK_SPACE && !this.currentRoom.getOneFishPassed())
-                changeCurrentFish();
+            if(k == KeyEvent.VK_SPACE)
+                this.currentRoom.changeCurrentFishIfAllowed();
 
-            if (Direction.isDirection(k))
-                canMoveToNextPosition(k);
+            if (Direction.isDirection(k)) {
+                boolean levelPassed = this.currentRoom.handleMovement(k);
+
+                if (levelPassed) {
+                    if (this.currentRoom == this.rooms.getLast()) {
+                        endGame("Sucesso, fim do jogo!!!");
+                    } else {
+                        ImageGUI.getInstance().clearImages();
+                        startLevel();
+                    }
+                }
+
+            }
 
             if (k == KeyEvent.VK_R)
                 this.restartLevel();
@@ -91,41 +100,6 @@ public class GameEngine implements Observer {
 		
 		ImageGUI.getInstance().update();
 	}
-
-    private void changeCurrentFish() {
-        if(this.currentFish.getName().equals(this.currentRoom.getBigFish().getName())) {
-            this.currentFish = this.currentRoom.getSmallFish();
-        } else {
-            this.currentFish = this.currentRoom.getBigFish();
-        }
-    }
-    private void canMoveToNextPosition(int k) {
-        Vector2D vector2D = Direction.directionFor(k).asVector();
-        Point2D nextPoint = this.currentFish.getNextPosition(vector2D);
-        GameObject nextGameObject = this.currentRoom.getGameObject(nextPoint);
-
-        if (!nextGameObject.blocksMovement(this.currentFish)) {
-            this.currentFish.move(Direction.directionFor(k).asVector());
-        } else {
-            handleCollision(nextGameObject);
-        }
-    }
-    private void handleCollision(GameObject nextGameObject) {
-        if (nextGameObject instanceof End ) {
-            if (this.currentRoom.getOneFishPassed() && this.currentRoom == this.rooms.getLast()) {
-                this.endGame("SUCESSO!!!\nFim do Jogo");
-            } else if (this.currentRoom.getOneFishPassed() && this.currentRoom != this.rooms.getLast()) {
-                ImageGUI.getInstance().clearImages();
-                System.out.println("olá");
-                startLevel();
-                return;
-            }
-            this.currentRoom.removeObject(this.currentFish);
-            changeCurrentFish();
-            this.currentRoom.setOneFishPassed(true);
-        }
-
-    }
 
 	private void processTick() {		
 		this.lastTickProcessed++;
