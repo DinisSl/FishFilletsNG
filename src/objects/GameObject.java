@@ -23,6 +23,7 @@ public abstract class GameObject implements ImageTile{
 		return position;
 	}
 
+//    Metodo estatico que devolve um GameObject passando um a letra do objeto como um char
     public static GameObject createGameObject(char character, Point2D point2D) {
         return switch (character) {
             case 'B' -> new BigFish(point2D);
@@ -36,6 +37,6 @@ public abstract class GameObject implements ImageTile{
                 throw new IllegalArgumentException("Caractere inválido: " + character + " na posição " + point2D);
         };
     }
-
+//    Metodo abstrato que controla o que acontece a cada GameCharacter cada vex que bate num GameObject
     public abstract boolean blocksMovement(GameCharacter gameCharacter);
 }

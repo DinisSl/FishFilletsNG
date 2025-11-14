@@ -8,7 +8,9 @@ public class SmallFish extends GameCharacter {
 	public SmallFish(Point2D p) {
         super(p);
 	}
-	
+
+//    Se tiver a apontar para a direita devolve o smallFishRight,
+//    se tiver a apontar para a esquerda devolve o smallFishLeft
 	@Override
 	public String getName() {
 		if (super.getCurrentDirection().equals(Direction.RIGHT)) {
@@ -18,7 +20,7 @@ public class SmallFish extends GameCharacter {
         }
         return "smallFishLeft";
 	}
-
+//    Se o BigFish bater no SmallFish bloquea se n passa
     @Override
     public boolean blocksMovement(GameCharacter gameCharacter) {
         if (gameCharacter instanceof BigFish)

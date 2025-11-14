@@ -18,9 +18,12 @@ public class Room {
 	
 	private SmallFish sf;
 	private BigFish bf;
+//    Verifica se um peixe já acabou a Room ou não
     private boolean oneFishPassed;
+//    Guarda o peixe que está a ser controlado
     private GameCharacter currentFish;
 
+//    Guarda o estado inicial da Room passado pelo file
     private char[][] room;
     private final File file;
 	
@@ -52,6 +55,8 @@ public class Room {
     public void setCurrentFish(GameCharacter currentFish) {
         this.currentFish = currentFish;
     }
+//    Muda o peixe que está a ser controlado se for o BigFish o atual
+//    passa para o SmallFish
     public void changeCurrentFish() {
         if(getCurrentFish() == getBigFish()) {
             setCurrentFish(getSmallFish());
@@ -59,6 +64,7 @@ public class Room {
             setCurrentFish(getBigFish());
         }
     }
+//    Se ainda nenhum peixe passou muda o peixe que está a ser controlado
     public void changeCurrentFishIfAllowed() {
         if (!getOneFishPassed()) {
             changeCurrentFish();
@@ -100,6 +106,8 @@ public class Room {
 	}
 // MANAGE ROOM STATE
 	public void initializeRoom() {
+//        Passa o texto do ficheiro file para uma matriz char[][]
+        loadRoom();
         for (int i = 0; i < this.room.length; i++) {
             for (int j = 0; j < this.room[i].length; j++) {
                 char letra = this.room[i][j];
@@ -130,7 +138,7 @@ public class Room {
         }
         setCurrentFish(getBigFish());
 	}
-    public void loadRoom() {
+    private void loadRoom() {
 //        Criar a lista para armazenar as diferentes linhas do "roomN.txt" no formato char[]
 //        não usamos String, pois queremos obter uma matriz de char "char[][]"
         List<char[]> lines = new ArrayList<>();
@@ -152,13 +160,17 @@ public class Room {
     }
 
     public void restartRoom() {
+//        Limpa a lista de GameObjects
         this.objects.clear();
+//        Passa o oneFishPassed para false porque reinicou a sala
         this.setOneFishPassed(false);
-        loadRoom();
+//        Inicializa a Room
         initializeRoom();
     }
 // HANDLES MOVEMENT/COLLISIONS
     public boolean handleMovement(int k) {
+//        Pega no int da tecla premida e passa para um Vector2D
+//        e depois por fim para um GameObject
         Vector2D vector2D = Direction.directionFor(k).asVector();
         Point2D nextPoint = getCurrentFish().getNextPosition(vector2D);
         GameObject nextGameObject = getGameObject(nextPoint);
