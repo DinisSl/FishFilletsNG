@@ -5,15 +5,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import objects.End;
-import objects.GameCharacter;
-import objects.GameObject;
 import pt.iscte.poo.gui.ImageGUI;
 import pt.iscte.poo.observer.Observed;
 import pt.iscte.poo.observer.Observer;
 import pt.iscte.poo.utils.Direction;
-import pt.iscte.poo.utils.Point2D;
-import pt.iscte.poo.utils.Vector2D;
 
 public class GameEngine implements Observer {
 
@@ -28,7 +23,8 @@ public class GameEngine implements Observer {
         this.currentRoom = this.rooms.getFirst();
         this.currentRoomNumber = 0;
     }
-
+//    Pega no caminho da dirétoria e transforma todos os ficheiros em Room
+//    e mete adiciona a List de Room
     public void gatherAllRooms(File f) {
         if (!f.isDirectory())
             throw new IllegalArgumentException("Caminho não é uma dirétoria" + f.getPath());
@@ -60,6 +56,7 @@ public class GameEngine implements Observer {
     }
     public void restartLevel() {
         ImageGUI.getInstance().clearImages();
+        this.currentRoom.restartRoom();
         ImageGUI.getInstance().update();
     }
 

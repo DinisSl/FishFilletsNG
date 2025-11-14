@@ -76,11 +76,15 @@ public class Room {
         GameObject gameObjectFinal = null;
         for(GameObject gameObject : this.objects) {
             if (gameObject.getPosition().equals(point2D)) {
-
+//                Procura o gameObjectFinal que tem a maior camada no point2D
                 if (gameObjectFinal == null || gameObject.getLayer() > gameObjectFinal.getLayer())
                     gameObjectFinal = gameObject;
             }
         }
+//        Se o gameObjectFinal ainda for null é porque é o final do nível logo
+//        cria e devolve um GameObject do tipo End para o metodo handleCollision()
+//        depois gerir se o nível acaba ou não.
+
         if (gameObjectFinal == null) {
             return new End(point2D);
         }
@@ -94,7 +98,7 @@ public class Room {
 		objects.remove(obj);
 		ImageGUI.getInstance().removeImage(obj);
 	}
-// INITIALIZE ROOM
+// MANAGE ROOM STATE
 	public void initializeRoom() {
         for (int i = 0; i < this.room.length; i++) {
             for (int j = 0; j < this.room[i].length; j++) {
@@ -113,10 +117,13 @@ public class Room {
                 if (gameObject instanceof BigFish) {
                     this.setBigFish((BigFish) gameObject);
                     this.addObject(gameObject);
+//                Se For BigFish dar set e adicioná-lo à lista
                 } else if (gameObject instanceof SmallFish) {
                     this.setSmallFish((SmallFish) gameObject);
                     this.addObject(gameObject);
+//                Se For SmallFish dar set e adicioná-lo à lista
                 } else {
+//                    Se não for um peixe basta adicioná-o
                     this.addObject(gameObject);
                 }
             }
@@ -124,15 +131,17 @@ public class Room {
         setCurrentFish(getBigFish());
 	}
     public void loadRoom() {
+//        Criar a lista para armazenar as diferentes linhas do "roomN.txt" no formato char[]
+//        não usamos String, pois queremos obter uma matriz de char "char[][]"
         List<char[]> lines = new ArrayList<>();
 
         try (Scanner s = new Scanner(this.file)){
             while (s.hasNextLine()) {
                 StringBuilder line = new StringBuilder(s.nextLine());
-//              Preencher a linha que não tem muro "W" com espaços
+//                Preencher a linha que não tem muro "W" com espaços
                 while (line.length() < 10)
                     line.append(" ");
-
+//                Passamos a StringBuilder para String e depois para char[]
                 lines.add(line.toString().toCharArray());
             }
         } catch (FileNotFoundException e) {
@@ -142,6 +151,13 @@ public class Room {
         this.room = lines.toArray(new char[10][10]);
     }
 
+    public void restartRoom() {
+        this.objects.clear();
+        this.setOneFishPassed(false);
+        loadRoom();
+        initializeRoom();
+    }
+// HANDLES MOVEMENT/COLLISIONS
     public boolean handleMovement(int k) {
         Vector2D vector2D = Direction.directionFor(k).asVector();
         Point2D nextPoint = getCurrentFish().getNextPosition(vector2D);
@@ -150,7 +166,7 @@ public class Room {
         if (!nextGameObject.blocksMovement(getCurrentFish())) {
             getCurrentFish().move(Direction.directionFor(k).asVector());
             return false;
-//            Não houve nehuma colisão que afetasse a progressão do nível
+//            Não houve nenhuma colisão que afetasse a progressão do nível
         } else {
             return handleCollision(nextGameObject);
 //            Devolve o resultado da colisão
