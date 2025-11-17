@@ -23,7 +23,7 @@ public abstract class GameObject implements ImageTile{
 		return position;
 	}
 
-//    Metodo estatico que devolve um GameObject passando um a letra do objeto como um char
+//    Metodo estático que devolve um GameObject passando um a letra do objeto como um char
     public static GameObject createGameObject(char character, Point2D point2D) {
         return switch (character) {
             case 'B' -> new BigFish(point2D);

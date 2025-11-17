@@ -31,10 +31,14 @@ public class Room {
         this.file = f;
 		this.objects = new ArrayList<>();
 	}
+
+
 // NAME
 	public String getName() {
 		return this.file.getName();
 	}
+
+
 // FISHES
 	public void setSmallFish(SmallFish sf) {
 		this.sf = sf;
@@ -48,6 +52,8 @@ public class Room {
 	public BigFish getBigFish() {
 		return bf;
 	}
+
+
 // CURRENT FISH
     public GameCharacter getCurrentFish() {
         return currentFish;
@@ -64,12 +70,16 @@ public class Room {
             setCurrentFish(getBigFish());
         }
     }
+
+
 //    Se ainda nenhum peixe passou muda o peixe que está a ser controlado
     public void changeCurrentFishIfAllowed() {
         if (!getOneFishPassed()) {
             changeCurrentFish();
         }
     }
+
+
 // ONE FISH PASSED
     public boolean getOneFishPassed() {
         return oneFishPassed;
@@ -77,6 +87,8 @@ public class Room {
     public void setOneFishPassed(boolean oneFishPassed) {
         this.oneFishPassed = oneFishPassed;
     }
+
+
 // GAME OBJECT
 	public GameObject getGameObject(Point2D point2D) {
         GameObject gameObjectFinal = null;
@@ -104,6 +116,8 @@ public class Room {
 		objects.remove(obj);
 		ImageGUI.getInstance().removeImage(obj);
 	}
+
+
 // MANAGE ROOM STATE
 	public void initializeRoom() {
 //        Passa o texto do ficheiro file para uma matriz char[][]
@@ -167,6 +181,8 @@ public class Room {
 //        Inicializa a Room
         initializeRoom();
     }
+
+
 // HANDLES MOVEMENT/COLLISIONS
     public boolean handleMovement(int k) {
 //        Pega no int da tecla premida e passa para um Vector2D

@@ -16,7 +16,7 @@ public class GameEngine implements Observer {
     private final List<Room> rooms;
 //    Para guardar a Room que está a ser jogada
 	private Room currentRoom;
-//    Guarda o indice da Room atual na lista rooms
+//    Guarda o índice da Room atual na lista rooms
 	private int currentRoomNumber;
 	private int lastTickProcessed = 0;
 	
@@ -51,7 +51,7 @@ public class GameEngine implements Observer {
     }
 
 	public void startLevel() {
-//        Atribui a currentRoom a Room da lista rooms com o indice currentRoomNumber ++
+//        Atribui a currentRoom a Room da lista rooms com o índice currentRoomNumber ++
         this.currentRoom = this.rooms.get(this.currentRoomNumber ++);
 //        Inicializa a Room atual
         this.currentRoom.initializeRoom();
@@ -68,7 +68,7 @@ public class GameEngine implements Observer {
     public void restartLevel() {
 //        Limpa o gui do nível atual
         ImageGUI.getInstance().clearImages();
-//        Limpa as variaveis da room atual
+//        Limpa as variáveis da room atual
         this.currentRoom.restartRoom();
 //        Dá update ao gui para mostrar a sala atualizada
         ImageGUI.getInstance().update();
@@ -85,7 +85,7 @@ public class GameEngine implements Observer {
                 this.currentRoom.changeCurrentFishIfAllowed();
 //          Se a tecla premida for uma direção válida
             if (Direction.isDirection(k)) {
-//                Vê se a room Atual já foi concluida
+//                Vê se a room Atual já foi concluída
                 boolean roomPassed = this.currentRoom.handleMovement(k);
 
                 if (roomPassed) {
