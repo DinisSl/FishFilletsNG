@@ -32,6 +32,12 @@ public abstract class GameObject implements ImageTile{
             case 'H' -> new SteelBeam(point2D, false);
             case 'V' -> new SteelBeam(point2D, true);
             case 'X' -> new HoledWall(point2D);
+//            case 'C' -> new Cup(point2D);
+//            case 'P' -> new Rock(point2D);
+//            case 'A' -> new Anchor(point2D);
+//            case 'O' -> new Bomb(point2D);
+//            case 'T' -> new Trap(point2D);
+//            case 'L' -> new Log(point2D);
 
             default ->
                 throw new IllegalArgumentException("Caractere inválido: " + character + " na posição " + point2D);

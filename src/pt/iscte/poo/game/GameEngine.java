@@ -54,7 +54,7 @@ public class GameEngine implements Observer {
 //        Atribui a currentRoom a Room da lista rooms com o índice currentRoomNumber ++
         this.currentRoom = this.rooms.get(this.currentRoomNumber ++);
 //        Inicializa a Room atual
-        this.currentRoom.initializeRoom();
+        this.currentRoom.loadRoom();
 //        Atualiza o gui para mostrar a Room
         ImageGUI.getInstance().update();
 	}
@@ -82,7 +82,7 @@ public class GameEngine implements Observer {
 			int k = ImageGUI.getInstance().keyPressed();
 //            Se a tecla premida for espaço troca o peixe
             if(k == KeyEvent.VK_SPACE)
-                this.currentRoom.changeCurrentFishIfAllowed();
+                this.currentRoom.changeCurrentGameCharacterIfAllowed();
 //          Se a tecla premida for uma direção válida
             if (Direction.isDirection(k)) {
 //                Vê se a room Atual já foi concluída

@@ -13,211 +13,178 @@ import pt.iscte.poo.utils.Point2D;
 import pt.iscte.poo.utils.Vector2D;
 
 public class Room {
-	
-	private final List<GameObject> objects;
-	
-	private SmallFish sf;
-	private BigFish bf;
-//    Verifica se um peixe já acabou a Room ou não
-    private boolean oneFishPassed;
+//    Guar uma lista de peixes ativos na Room
+    private List<GameCharacter> activeGC;
 //    Guarda o peixe que está a ser controlado
-    private GameCharacter currentFish;
-
-//    Guarda o estado inicial da Room passado pelo file
-    private char[][] room;
+    private GameCharacter currentGameCharacter;
+//    Guarda o estado da Room
+    private List<GameObject>[][] room;
     private final File file;
-	
-	public Room(File f) {
-        this.file = f;
-		this.objects = new ArrayList<>();
-	}
 
+    public Room(File f) {
+        this.file = f;
+        this.activeGC = new ArrayList<>();
+        this.room = new ArrayList[10][10];
+    }
 
 // NAME
-	public String getName() {
-		return this.file.getName();
-	}
-
-
-// FISHES
-	public void setSmallFish(SmallFish sf) {
-		this.sf = sf;
-	}
-	public void setBigFish(BigFish bf) {
-		this.bf = bf;
-	}
-	public SmallFish getSmallFish() {
-		return sf;
-	}
-	public BigFish getBigFish() {
-		return bf;
-	}
-
-
-// CURRENT FISH
-    public GameCharacter getCurrentFish() {
-        return currentFish;
-    }
-    public void setCurrentFish(GameCharacter currentFish) {
-        this.currentFish = currentFish;
-    }
-//    Muda o peixe que está a ser controlado se for o BigFish o atual
-//    passa para o SmallFish
-    public void changeCurrentFish() {
-        if(getCurrentFish() == getBigFish()) {
-            setCurrentFish(getSmallFish());
-        } else {
-            setCurrentFish(getBigFish());
-        }
+    public String getName() {
+        return this.file.getName();
     }
 
-
-//    Se ainda nenhum peixe passou muda o peixe que está a ser controlado
-    public void changeCurrentFishIfAllowed() {
-        if (!getOneFishPassed()) {
-            changeCurrentFish();
-        }
+// CURRENT GAME CHARACTER
+    public GameCharacter getCurrentGameCharacter() {
+        return currentGameCharacter;
+    }
+    public void setCurrentGameCharacter(GameCharacter currentGameCharacter) {
+        this.currentGameCharacter = currentGameCharacter;
     }
 
+//    Muda o Game Character que está a ser controlado
+    private void changeCurrentGameCharacter() {
+//        Vai buscar o índice do currentGameCharacter na lista
+        int currIndex = this.activeGC.indexOf(this.getCurrentGameCharacter());
 
-// ONE FISH PASSED
-    public boolean getOneFishPassed() {
-        return oneFishPassed;
+//        Calcula o índice do próximo Game Character se o currentGameCharacter
+//        for o ultimo na lista, o índice vai dar 0, ou seja, volta para o início
+        int nextIndex = (currIndex + 1) % this.activeGC.size();
+
+//        Por fim atualiza o currentGameCharacter
+        setCurrentGameCharacter(this.activeGC.get(nextIndex));
     }
-    public void setOneFishPassed(boolean oneFishPassed) {
-        this.oneFishPassed = oneFishPassed;
+
+    //    Se ainda nenhum peixe passou muda o peixe que está a ser controlado
+    public void changeCurrentGameCharacterIfAllowed() {
+        if (this.activeGC.size() > 1)
+            changeCurrentGameCharacter();
     }
 
 
 // GAME OBJECT
-	public GameObject getGameObject(Point2D point2D) {
-        GameObject gameObjectFinal = null;
-        for(GameObject gameObject : this.objects) {
-            if (gameObject.getPosition().equals(point2D)) {
-//                Procura o gameObjectFinal que tem a maior camada no point2D
-                if (gameObjectFinal == null || gameObject.getLayer() > gameObjectFinal.getLayer())
-                    gameObjectFinal = gameObject;
-            }
+    public GameObject getGameObject(Point2D point2D) {
+        int x = point2D.getX();
+        int y = point2D.getY();
+        if (x < 0 || x >= this.room.length || y < 0 || y >= this.room[0].length) {
+            return null;
         }
-//        Se o gameObjectFinal ainda for null é porque é o final do nível logo
-//        cria e devolve um GameObject do tipo End para o metodo handleCollision()
-//        depois gerir se o nível acaba ou não.
+        List<GameObject> objsInPos = this.room[x][y];
+        GameObject gameObjectFinal = null;
+        for(GameObject gameObject : objsInPos) {
+//                Procura o gameObjectFinal que tem a maior camada no point2D
+            if (gameObjectFinal == null || gameObject.getLayer() > gameObjectFinal.getLayer())
+                gameObjectFinal = gameObject;
 
-        if (gameObjectFinal == null) {
-            return new End(point2D);
         }
         return gameObjectFinal;
     }
-    public void addObject(GameObject obj) {
-		objects.add(obj);
-		ImageGUI.getInstance().addImage(obj);
-	}
-	public void removeObject(GameObject obj) {
-		objects.remove(obj);
-		ImageGUI.getInstance().removeImage(obj);
-	}
 
+    public void addObject(GameObject obj) {
+        int x = obj.getPosition().getX();
+        int y = obj.getPosition().getY();
+        this.room[x][y].add(obj);
+        ImageGUI.getInstance().addImage(obj);
+    }
+
+    public void removeObject(GameObject obj) {
+        int x = obj.getPosition().getX();
+        int y = obj.getPosition().getY();
+        this.room[x][y].remove(obj);
+        ImageGUI.getInstance().removeImage(obj);
+    }
 
 // MANAGE ROOM STATE
-	public void initializeRoom() {
-//        Passa o texto do ficheiro file para uma matriz char[][]
-        loadRoom();
-        for (int i = 0; i < this.room.length; i++) {
-            for (int j = 0; j < this.room[i].length; j++) {
-                char letra = this.room[i][j];
-                Point2D currentPoint = new Point2D(j, i);
-
-                // Criar água em todos os quadrados
-                this.addObject(new Water(currentPoint));
-
-                // Dar skip quando é um espaço só com água
-                if (letra == ' ')
-                    continue;
-
-                GameObject gameObject = GameObject.createGameObject(letra, currentPoint);
-
-                if (gameObject instanceof BigFish) {
-                    this.setBigFish((BigFish) gameObject);
-                    this.addObject(gameObject);
-//                Se For BigFish dar set e adicioná-lo à lista
-                } else if (gameObject instanceof SmallFish) {
-                    this.setSmallFish((SmallFish) gameObject);
-                    this.addObject(gameObject);
-//                Se For SmallFish dar set e adicioná-lo à lista
-                } else {
-//                    Se não for um peixe basta adicioná-o
-                    this.addObject(gameObject);
-                }
-            }
-        }
-        setCurrentFish(getBigFish());
-	}
-    private void loadRoom() {
-//        Criar a lista para armazenar as diferentes linhas do "roomN.txt" no formato char[]
-//        não usamos String, pois queremos obter uma matriz de char "char[][]"
-        List<char[]> lines = new ArrayList<>();
-
+    public void loadRoom() {
+        initializeArrayOfList();
         try (Scanner s = new Scanner(this.file)){
             while (s.hasNextLine()) {
-                StringBuilder line = new StringBuilder(s.nextLine());
-//                Preencher a linha que não tem muro "W" com espaços
-                while (line.length() < 10)
-                    line.append(" ");
-//                Passamos a StringBuilder para String e depois para char[]
-                lines.add(line.toString().toCharArray());
+                for (int i = 0; i < this.room.length; i++) {
+                    StringBuilder sb = new StringBuilder(s.nextLine());
+    //                Preencher a linha que não tem muro "W" com espaços
+                    while (sb.length() < 10)
+                        sb.append(" ");
+                    String line = sb.toString();
+                    for (int j = 0; j < this.room[i].length; j++) {
+                        char letra = line.charAt(j);
+                        if (letra == ' ')
+                            continue;
+
+                        Point2D p = new Point2D(j, i);
+                        GameObject gameObject = GameObject.createGameObject(letra, p);
+
+                        System.out.println(gameObject.getName() + p);
+
+                        if (gameObject instanceof GameCharacter) {
+                            this.activeGC.add((GameCharacter) gameObject);
+                            this.addObject(gameObject);
+//                       Se For GameCharacter dar set e adicioná-lo à lista
+                        } else {
+//                             Se não for um Game Character basta adicioná-o
+                            this.addObject(gameObject);
+                        }
+                    }
+                }
             }
         } catch (FileNotFoundException e) {
             System.err.println("File not found");
         }
+        setCurrentGameCharacter(this.activeGC.getFirst());
+    }
 
-        this.room = lines.toArray(new char[10][10]);
+    private void initializeArrayOfList() {
+        for (int i = 0; i < this.room.length; i++) {
+            for (int j = 0; j < this.room[i].length; j++) {
+                this.room[i][j] = new ArrayList<>();
+                addObject(new Water(new Point2D(i, j)));
+            }
+        }
     }
 
     public void restartRoom() {
-//        Limpa a lista de GameObjects
-        this.objects.clear();
-//        Passa o oneFishPassed para false porque reinicou a sala
-        this.setOneFishPassed(false);
-//        Inicializa a Room
-        initializeRoom();
+        this.activeGC.clear();
+//        Dá load à Room de volta para o estado passado pelo ficheiro
+        loadRoom();
     }
 
-
-// HANDLES MOVEMENT/COLLISIONS
+// HANDLES MOVEMENT/COLLISIONS/EXIT
     public boolean handleMovement(int k) {
 //        Pega no int da tecla premida e passa para um Vector2D
 //        e depois por fim para um GameObject
-        Vector2D vector2D = Direction.directionFor(k).asVector();
-        Point2D nextPoint = getCurrentFish().getNextPosition(vector2D);
+        Vector2D vector = Direction.directionFor(k).asVector();
+        Point2D nextPoint = getCurrentGameCharacter().getNextPosition(vector);
         GameObject nextGameObject = getGameObject(nextPoint);
 
-        if (!nextGameObject.blocksMovement(getCurrentFish())) {
-            getCurrentFish().move(Direction.directionFor(k).asVector());
+//        Se "nextGameObject" for null então passa para handleExit
+        if (nextGameObject == null)
+            return handleExit(nextGameObject);
+//        Se "nextGameObject" bloquear a passagem do currentFish devolve falso
+        if (nextGameObject.blocksMovement(getCurrentGameCharacter()))
             return false;
-//            Não houve nenhuma colisão que afetasse a progressão do nível
-        } else {
-            return handleCollision(nextGameObject);
-//            Devolve o resultado da colisão
-        }
-    }
+//        Se nenhuma das condições acima se verificar então é porque se pode mover
+        moveFish(vector);
 
-    private boolean handleCollision(GameObject nextGameObject) {
-        if (nextGameObject instanceof End ) {
-            if (this.oneFishPassed) {
-//                Se o primeiro peixe já passou já completou o nível e devolve true
-                return true;
-            } else {
-//                Se ainda não passou nenhum peixe logo este é o primeiro, remove-o
-//                e troca-o
-                removeObject(getCurrentFish());
-                changeCurrentFish();
-                setOneFishPassed(true);
-
-                return false;
-            }
-        }
-//        Se não for uma instância de End então é porque é uma parede
         return false;
     }
-	
+    
+    private void moveFish(Vector2D vector) {
+        GameCharacter gc = getCurrentGameCharacter();
+        removeObject(gc);
+        getCurrentGameCharacter().move(vector);
+        addObject(getCurrentGameCharacter());
+    }
+
+//    Este metodo só é chamado quando um peixe sai do jogo
+    private boolean handleExit(GameObject nextGameObject) {
+//        Remove o currentGameCharacter da Room e da List
+        removeObject(getCurrentGameCharacter());
+        this.activeGC.remove(getCurrentGameCharacter());
+
+//       Se a lista estiver vazia significa que o último GameCharacter
+//       já passou logo já completou o nível e devolve true
+        if (this.activeGC.isEmpty())
+            return true;
+
+//       Se ainda não passaram os GameCharacter todos então troca o peixe
+        setCurrentGameCharacter(this.activeGC.getFirst());
+        return false;
+    }
 }
