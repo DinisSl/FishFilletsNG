@@ -4,26 +4,25 @@ import objects.management.GameCharacter;
 import objects.management.GameObject;
 import pt.iscte.poo.utils.Point2D;
 
-public class HoledWall extends GameObject {
+public class Trunk extends GameObject {
 
-    public HoledWall(Point2D p) {
+    public Trunk(Point2D p) {
         super(p);
     }
 
     @Override
     public String getName() {
-        return "holedWall";
+        return "trunk";
     }
 
     @Override
     public int getLayer() {
-        return 2;
+        return 1;
     }
 
-//    Se o GameCharacter for o SmallFish não bloqueia o movimento se for o BigFish bloqueia
     @Override
     public boolean blocksMovement(GameObject gameCharacter) {
-        return !(gameCharacter instanceof SmallFish || gameCharacter instanceof Cup);
+        // tronco bloqueia os peixes
+        return true;
     }
-
 }

@@ -1,8 +1,10 @@
 package objects;
 
+import objects.management.GameCharacter;
+import objects.management.GameObject;
 import pt.iscte.poo.utils.Point2D;
 
-public class SteelBeam extends GameObject{
+public class SteelBeam extends GameObject {
 //    Guarda se o SteelBeam é vertical ou horizontal
     private final boolean isVertical;
 
@@ -17,10 +19,10 @@ public class SteelBeam extends GameObject{
             return "steelVertical";
         return "steelHorizontal"; }
     @Override
-    public int getLayer() { return 1; }
+    public int getLayer() { return 2; }
 
     @Override
-    public boolean blocksMovement(GameCharacter gameCharacter) {
+    public boolean blocksMovement(GameObject gameCharacter) {
         return true;
     }
 }

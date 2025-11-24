@@ -1,5 +1,7 @@
 package objects;
 
+import objects.management.GameCharacter;
+import objects.management.GameObject;
 import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;
 
@@ -21,13 +23,9 @@ public class BigFish extends GameCharacter {
         return "bigFishLeft";
 	}
 
-	@Override
-	public int getLayer() {
-		return 2;
-	}
 //    Se o SmallFish bater no BigFish bloquea se n passa
     @Override
-    public boolean blocksMovement(GameCharacter gameCharacter) {
+    public boolean blocksMovement(GameObject gameCharacter) {
         if (gameCharacter instanceof SmallFish)
             return true;
         return false;

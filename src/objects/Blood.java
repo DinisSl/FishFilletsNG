@@ -4,24 +4,24 @@ import objects.management.GameCharacter;
 import objects.management.GameObject;
 import pt.iscte.poo.utils.Point2D;
 
-public class Water extends GameObject {
+public class Blood extends GameObject {
 
-	public Water(Point2D p) {
-		super(p);
-	}
-
-    @Override
-	public String getName() {
-		return "water";
-	}
-
-	@Override
-	public int getLayer() {
-		return 0;
-	}
+    public Blood(Point2D p) {
+        super(p);
+    }
 
     @Override
     public boolean blocksMovement(GameObject gameCharacter) {
         return false;
+    }
+
+    @Override
+    public String getName() {
+        return "blood";
+    }
+
+    @Override
+    public int getLayer() {
+        return 1;
     }
 }

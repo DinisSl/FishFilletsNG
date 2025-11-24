@@ -1,4 +1,4 @@
-package objects;
+package objects.management;
 
 import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;
@@ -10,7 +10,7 @@ public abstract class GameCharacter extends GameObject {
 
     public GameCharacter(Point2D p) {
 		super(p);
-//        Ele inicialmente está a olha para a esquerda
+//        Ele olha inicialmente para a esquerda
         currentDirection = Direction.LEFT;
 	}
 
@@ -43,7 +43,7 @@ public abstract class GameCharacter extends GameObject {
 
 	@Override
 	public int getLayer() {
-		return 2;
+		return 3;
 	}
-	
+
 }

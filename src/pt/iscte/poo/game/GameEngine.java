@@ -65,14 +65,7 @@ public class GameEngine implements Observer {
 //        Termina o programa com o status 0
         System.exit(0);
     }
-    public void restartLevel() {
-//        Limpa o gui do nível atual
-        ImageGUI.getInstance().clearImages();
-//        Limpa as variáveis da room atual
-        this.currentRoom.restartRoom();
-//        Dá update ao gui para mostrar a sala atualizada
-        ImageGUI.getInstance().update();
-    }
+
 
 	@Override
 	public void update(Observed source) {
@@ -102,7 +95,7 @@ public class GameEngine implements Observer {
             }
 //            Se a tecla premida for o R recomeça o nível atual
             if (k == KeyEvent.VK_R)
-                this.restartLevel();
+                this.currentRoom.restartRoom();
 
 		}
 
@@ -115,7 +108,8 @@ public class GameEngine implements Observer {
 		ImageGUI.getInstance().update();
 	}
 
-	private void processTick() {		
-		this.lastTickProcessed++;
+	private void processTick() {
+        this.currentRoom.applyGravity();
+        this.lastTickProcessed++;
 	}	
 }

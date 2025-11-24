@@ -2,11 +2,13 @@ package pt.iscte.poo.game;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 import objects.*;
+import objects.management.FallingObject;
+import objects.management.GameCharacter;
+import objects.management.GameObject;
+import objects.management.GravitySystem;
 import pt.iscte.poo.gui.ImageGUI;
 import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;
@@ -14,20 +16,29 @@ import pt.iscte.poo.utils.Vector2D;
 
 public class Room {
 //    Guar uma lista de peixes ativos na Room
-    private List<GameCharacter> activeGC;
+    private final List<GameCharacter> activeGC;
 //    Guarda o peixe que está a ser controlado
     private GameCharacter currentGameCharacter;
 //    Guarda o estado da Room
-    private List<GameObject>[][] room;
+    private final Board board;
+    private GravitySystem gravitySystem;
+//    private Map<Point2D, List<GameObject>> room;
     private final File file;
 
     public Room(File f) {
         this.file = f;
         this.activeGC = new ArrayList<>();
-        this.room = new ArrayList[10][10];
+        this.board = new Board();
+        this.gravitySystem = new GravitySystem();
+//        this.room = new HashMap<>();
+    }
+    public Board getBoard() { return this.board; }
+
+    public List<GameCharacter> getActiveGC() {
+        return activeGC;
     }
 
-// NAME
+    // NAME
     public String getName() {
         return this.file.getName();
     }
@@ -59,59 +70,40 @@ public class Room {
             changeCurrentGameCharacter();
     }
 
-
 // GAME OBJECT
-    public GameObject getGameObject(Point2D point2D) {
-        int x = point2D.getX();
-        int y = point2D.getY();
-        if (x < 0 || x >= this.room.length || y < 0 || y >= this.room[0].length) {
-            return null;
-        }
-        List<GameObject> objsInPos = this.room[x][y];
-        GameObject gameObjectFinal = null;
-        for(GameObject gameObject : objsInPos) {
-//                Procura o gameObjectFinal que tem a maior camada no point2D
-            if (gameObjectFinal == null || gameObject.getLayer() > gameObjectFinal.getLayer())
-                gameObjectFinal = gameObject;
-
-        }
-        return gameObjectFinal;
+    public GameObject getGameObject(Point2D position) {
+        return this.board.getAt(position);
     }
 
     public void addObject(GameObject obj) {
-        int x = obj.getPosition().getX();
-        int y = obj.getPosition().getY();
-        this.room[x][y].add(obj);
+        this.board.setAt(obj);
         ImageGUI.getInstance().addImage(obj);
     }
 
     public void removeObject(GameObject obj) {
-        int x = obj.getPosition().getX();
-        int y = obj.getPosition().getY();
-        this.room[x][y].remove(obj);
+        this.board.removeAt(obj);
         ImageGUI.getInstance().removeImage(obj);
     }
 
 // MANAGE ROOM STATE
     public void loadRoom() {
-        initializeArrayOfList();
+        this.board.initializeArrayOfList();
         try (Scanner s = new Scanner(this.file)){
             while (s.hasNextLine()) {
-                for (int i = 0; i < this.room.length; i++) {
+                for (int i = 0; i < 10; i++) {
                     StringBuilder sb = new StringBuilder(s.nextLine());
     //                Preencher a linha que não tem muro "W" com espaços
                     while (sb.length() < 10)
                         sb.append(" ");
                     String line = sb.toString();
-                    for (int j = 0; j < this.room[i].length; j++) {
+                    for (int j = 0; j < 10; j++) {
                         char letra = line.charAt(j);
-                        if (letra == ' ')
-                            continue;
 
                         Point2D p = new Point2D(j, i);
+                        addObject(new Water(p));
+                        if (letra == ' ')
+                            continue;
                         GameObject gameObject = GameObject.createGameObject(letra, p);
-
-                        System.out.println(gameObject.getName() + p);
 
                         if (gameObject instanceof GameCharacter) {
                             this.activeGC.add((GameCharacter) gameObject);
@@ -130,42 +122,69 @@ public class Room {
         setCurrentGameCharacter(this.activeGC.getFirst());
     }
 
-    private void initializeArrayOfList() {
-        for (int i = 0; i < this.room.length; i++) {
-            for (int j = 0; j < this.room[i].length; j++) {
-                this.room[i][j] = new ArrayList<>();
-                addObject(new Water(new Point2D(i, j)));
-            }
-        }
-    }
-
     public void restartRoom() {
+//        Limpa o gui do nível atual
+        ImageGUI.getInstance().clearImages();
         this.activeGC.clear();
+        this.gravitySystem = new GravitySystem();
 //        Dá load à Room de volta para o estado passado pelo ficheiro
         loadRoom();
+//        Dá update ao gui para mostrar a sala atualizada
+        ImageGUI.getInstance().update();
     }
 
 // HANDLES MOVEMENT/COLLISIONS/EXIT
-    public boolean handleMovement(int k) {
-//        Pega no int da tecla premida e passa para um Vector2D
-//        e depois por fim para um GameObject
-        Vector2D vector = Direction.directionFor(k).asVector();
-        Point2D nextPoint = getCurrentGameCharacter().getNextPosition(vector);
-        GameObject nextGameObject = getGameObject(nextPoint);
+    public void applyGravity() {
+        gravitySystem.update(this, this.board);
+    }
 
-//        Se "nextGameObject" for null então passa para handleExit
+    public boolean handleMovement(int k) {
+        Vector2D vector = Direction.directionFor(k).asVector();
+        Point2D nextPointGC = getCurrentGameCharacter().getNextPosition(vector);
+        GameObject nextGameObject = getGameObject(nextPointGC);
+
         if (nextGameObject == null)
             return handleExit(nextGameObject);
-//        Se "nextGameObject" bloquear a passagem do currentFish devolve falso
-        if (nextGameObject.blocksMovement(getCurrentGameCharacter()))
-            return false;
-//        Se nenhuma das condições acima se verificar então é porque se pode mover
-        moveFish(vector);
 
+        // TRAP LOGIC
+        if (nextGameObject instanceof Trap && getCurrentGameCharacter() instanceof BigFish bf) {
+            List<GameCharacter> toKill = new ArrayList<>();
+            toKill.add(bf);
+            killGameCharacter(toKill, false);
+            return false; // PARAR A EXECUÇÃO IMEDIATAMENTE APÓS A MORTE
+        }
+        // PUSH OBJECT LOGIC
+        if (nextGameObject.blocksMovement(getCurrentGameCharacter())) {
+            // SE FOR UM GC A EMPURRAR UM OBJETO QUE BLOQUEIA A SUA PASSAGEM
+            // VAI VER SE É UM OBJETO QUE PODE CAIR, OU SEJA, PODE SER EMPURRADO
+            if (nextGameObject instanceof FallingObject fo) {
+                // SE FOR POSSÍVEL MEXE O OBJETO E DEPOIS ESTA FUNÇÃO
+                // MEXE O GC
+                boolean canMove =
+                        fo.moveIfPossible(
+                                this,
+                                nextPointGC,
+                                nextPointGC.plus(vector)
+                        );
+                if (canMove) {
+                    moveGameCharacter(vector);
+                    return false;
+                }
+            }
+            return false;
+        }
+
+        moveGameCharacter(vector);
         return false;
     }
-    
-    private void moveFish(Vector2D vector) {
+
+    public void moveObject(GameObject obj, Point2D newPos) {
+        removeObject(obj);           // Remove from board + GUI
+        obj.setPosition(newPos);     // Update object's position
+        addObject(obj);              // Add to board + GUI at new position
+    }
+
+    private void moveGameCharacter(Vector2D vector) {
         GameCharacter gc = getCurrentGameCharacter();
         removeObject(gc);
         getCurrentGameCharacter().move(vector);
@@ -186,5 +205,53 @@ public class Room {
 //       Se ainda não passaram os GameCharacter todos então troca o peixe
         setCurrentGameCharacter(this.activeGC.getFirst());
         return false;
+    }
+
+    public void killGameCharacter(List<GameCharacter> toKill, boolean byExplosion) {
+//        StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
+//        String callerClassName = stackTraceElements[2].getClassName(); // Get the class name of the caller
+//        String callerMethodName = stackTraceElements[2].getMethodName(); // Get the method name of the caller
+//        System.out.println("killGameCharacter called by: " + callerClassName + "." + callerMethodName);
+
+        for (GameCharacter gc : toKill) {
+            System.out.println(gc.getName());
+            removeObject(gc);
+            if (!byExplosion)
+                addObject(new Blood(gc.getPosition()));
+        }
+        ImageGUI.getInstance().update();
+        ImageGUI.getInstance().showMessage("GANDA BANANA",
+                "Your fishlet just got slimed!!");
+        restartRoom();
+    }
+
+    public void explodePoints(List<Point2D> points) {
+        boolean fishSlimed = false;
+        List<GameCharacter> toKill = new ArrayList<>();
+
+        // 1. Place visuals and identify victims
+        for (Point2D p : points) {
+            GameObject original = getGameObject(p);
+
+            // Don't overwrite Water, but add explosion visual
+            if (!(original instanceof Water)) {
+                if (original instanceof GameCharacter gc) {
+                    fishSlimed = true;
+                    toKill.add(gc);
+                } else {
+                    removeObject(original); // Destroy crates/items
+                }
+            }
+            addObject(new Explosion(p, System.currentTimeMillis()));
+        }
+
+        ImageGUI.getInstance().update();
+
+        // 2. Handle Death vs Cleanup
+        if (fishSlimed) {
+            // If we die, we don't care about removing the explosion sprites
+            // because the restartRoom() inside killGameCharacter will clear them.
+            killGameCharacter(toKill, true);
+        }
     }
 }

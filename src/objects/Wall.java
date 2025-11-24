@@ -1,5 +1,7 @@
 package objects;
 
+import objects.management.GameCharacter;
+import objects.management.GameObject;
 import pt.iscte.poo.utils.Point2D;
 
 public class Wall extends GameObject {
@@ -11,10 +13,10 @@ public class Wall extends GameObject {
         return "wall";
     }
     @Override
-    public int getLayer() { return 1; }
+    public int getLayer() { return 2; }
 
     @Override
-    public boolean blocksMovement(GameCharacter gameCharacter) {
+    public boolean blocksMovement(GameObject gameCharacter) {
         return true;
     }
 }

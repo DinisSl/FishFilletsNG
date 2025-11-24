@@ -38,7 +38,7 @@ public interface ImageTile {
 	Point2D getPosition();
 
 	/**
-	 * Getter for the level of the image, higher levels are displed on top of
+	 * Getter for the level of the image, higher levels are displayed on top of
 	 * lower ones (level 0 will be the first images to be displayed, the higher
 	 * the level the later in the rendering the image will be added).
 	 * 
