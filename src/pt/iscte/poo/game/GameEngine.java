@@ -12,15 +12,15 @@ import pt.iscte.poo.utils.Direction;
 
 public class GameEngine implements Observer {
 
-//    Lista para guardar as Rooms todas do jogo
+    //    Lista para guardar as Rooms todas do jogo
     private final List<Room> rooms;
-//    Para guardar a Room que está a ser jogada
-	private Room currentRoom;
-//    Guarda o índice da Room atual na lista rooms
-	private int currentRoomNumber;
-	private int lastTickProcessed = 0;
-	
-	public GameEngine() {
+    //    Para guardar a Room que está a ser jogada
+    private Room currentRoom;
+    //    Guarda o índice da Room atual na lista rooms
+    private int currentRoomNumber;
+    private int lastTickProcessed = 0;
+
+    public GameEngine() {
 //        Inicializa a lista rooms
         this.rooms = new ArrayList<>();
 //        lê os ficheiros na diretoria room e adiciona-os à lista
@@ -30,7 +30,7 @@ public class GameEngine implements Observer {
 //        E atribui o currentRoomNumber a 0
         this.currentRoomNumber = 0;
     }
-//    Pega no caminho da dirétoria e transforma todos os ficheiros em Room
+    //    Pega no caminho da dirétoria e transforma todos os ficheiros em Room
 //    e mete adiciona a List de Room
     public void gatherAllRooms(File f) {
         if (!f.isDirectory())
@@ -50,14 +50,14 @@ public class GameEngine implements Observer {
 
     }
 
-	public void startLevel() {
+    public void startLevel() {
 //        Atribui a currentRoom a Room da lista rooms com o índice currentRoomNumber ++
         this.currentRoom = this.rooms.get(this.currentRoomNumber ++);
 //        Inicializa a Room atual
         this.currentRoom.loadRoom();
 //        Atualiza o gui para mostrar a Room
         ImageGUI.getInstance().update();
-	}
+    }
     public void endGame(String message) {
         ImageGUI.getInstance().showMessage("Fim do jogo: ", message);
 //        Termina a instância do gui
@@ -67,12 +67,12 @@ public class GameEngine implements Observer {
     }
 
 
-	@Override
-	public void update(Observed source) {
+    @Override
+    public void update(Observed source) {
 
-		if (ImageGUI.getInstance().wasKeyPressed()) {
+        if (ImageGUI.getInstance().wasKeyPressed()) {
 
-			int k = ImageGUI.getInstance().keyPressed();
+            int k = ImageGUI.getInstance().keyPressed();
 //            Se a tecla premida for espaço troca o peixe
             if(k == KeyEvent.VK_SPACE)
                 this.currentRoom.changeCurrentGameCharacterIfAllowed();
@@ -97,19 +97,19 @@ public class GameEngine implements Observer {
             if (k == KeyEvent.VK_R)
                 this.currentRoom.restartRoom();
 
-		}
+        }
 
-		int t = ImageGUI.getInstance().getTicks();
+        int t = ImageGUI.getInstance().getTicks();
 
-		while (this.lastTickProcessed < t) {
-			processTick();
-		}
-		
-		ImageGUI.getInstance().update();
-	}
+        while (this.lastTickProcessed < t) {
+            processTick();
+        }
 
-	private void processTick() {
+        ImageGUI.getInstance().update();
+    }
+
+    private void processTick() {
         this.currentRoom.applyGravity();
         this.lastTickProcessed++;
-	}	
+    }
 }

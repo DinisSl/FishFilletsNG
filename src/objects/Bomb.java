@@ -47,7 +47,7 @@ public class Bomb extends FallingObject {
             if (objBelow instanceof GameCharacter)
                 this.originalY = objInNextPos.getPosition().getY();
             // DEPOIS MOVEMOS O OBJETO PARA ONDE ESTÁ A SER EMPURRADO
-            room.moveObject(this, nextObjPos);
+            room.getMovementSystem().moveObject(room, this, nextObjPos);
             return true;
         }
         return false;

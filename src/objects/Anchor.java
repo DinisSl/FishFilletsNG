@@ -31,7 +31,7 @@ public class Anchor extends FallingObject {
             return false;
 
         if (objInNextPos instanceof Water && gc instanceof BigFish && !this.pushedOnce) {
-            room.moveObject(this, whereToGo);
+            room.getMovementSystem().moveObject(room, this, whereToGo);
             this.pushedOnce = true;
             return true;
         }

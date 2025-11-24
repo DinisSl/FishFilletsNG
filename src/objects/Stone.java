@@ -21,7 +21,7 @@ public class Stone extends FallingObject{
         GameCharacter gc = room.getCurrentGameCharacter();
         GameObject objInNextPos = room.getGameObject(whereToGo);
         if (objInNextPos instanceof Water && gc instanceof BigFish) {
-            room.moveObject(this, whereToGo);
+            room.getMovementSystem().moveObject(room, this, whereToGo);
             return true;
         }
         return false;

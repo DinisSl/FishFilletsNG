@@ -40,7 +40,7 @@ public abstract class GameObject implements ImageTile{
             case 'L' -> new Trunk(point);
 
             default ->
-                throw new IllegalArgumentException("Caractere inválido: " + character + "na posição " + point);
+                throw new IllegalArgumentException("Character inválido: " + character + "na posição " + point);
         };
     }
 //    Metodo abstrato que controla o que acontece a cada GameCharacter cada vez que bate num GameObject

@@ -3,6 +3,7 @@ package objects.management;
 import interfaces.GravityAffected;
 import pt.iscte.poo.game.Room;
 import pt.iscte.poo.utils.Point2D;
+
 public abstract class FallingObject extends GameObject implements GravityAffected {
     private boolean falling;
 

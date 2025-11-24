@@ -14,7 +14,6 @@ public abstract class GameCharacter extends GameObject {
         currentDirection = Direction.LEFT;
 	}
 
-
 	public void move(Vector2D dir) {
 //        Calcula o Point2D de destino do peixe
         Point2D destination = getNextPosition(dir);
