@@ -38,7 +38,7 @@ public class GravitySystem {
 
         if ((objBelow instanceof Water || objBelow instanceof Blood)) {
             obj.setFalling(true);
-            room.getMovementSystem().moveObject(room, obj, posBelow);
+            room.getMovementSystem().moveObject(obj, posBelow);
         } else {
             obj.setFalling(false);
             obj.onLand(room, currPos, posBelow);

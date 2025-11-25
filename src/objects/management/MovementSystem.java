@@ -9,31 +9,37 @@ import pt.iscte.poo.utils.Vector2D;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings("ClassCanBeRecord")
 public class MovementSystem {
+    private final Room room;
+
+    public MovementSystem(Room room) {
+        this.room = room;
+    }
 
     // MAIN METHOD HANDLES ALL THE MOVEMENT LOGIC
-    public boolean handleMovement(int k, Room room) {
+    public boolean handleMovement(int k) {
         Vector2D vector = Direction.directionFor(k).asVector();
         Point2D nextPointGC = room.getCurrentGameCharacter().getNextPosition(vector);
         GameObject nextGameObject = room.getGameObject(nextPointGC);
 
         if (nextGameObject == null)
-            return handleExit(room);
+            return handleExit();
 
-        if (!handleTraps(nextGameObject, room))
+        if (!handleTraps(nextGameObject))
             return false;
 
-        if (!handlePushableObjs(nextGameObject, nextPointGC, vector, room))
+        if (!handlePushableObjs(nextGameObject, nextPointGC, vector))
             return false;
 
-        moveGameCharacter(vector, room);
+        moveGameCharacter(vector);
         return false;
     }
 
 
     // SUBMETHODS, ONLY CALLED BY handleMovement(int k, Room room){}
     // Este metodo só é chamado quando um peixe sai do jogo
-    private boolean handleExit(Room room) {
+    private boolean handleExit() {
         // Remove o currentGameCharacter da Room e da List
         room.removeObject(room.getCurrentGameCharacter());
         room.getActiveGC().remove(room.getCurrentGameCharacter());
@@ -48,7 +54,7 @@ public class MovementSystem {
         return false;
     }
 
-    private boolean handleTraps(GameObject nextGameObject, Room room) {
+    private boolean handleTraps(GameObject nextGameObject) {
         // TRAP LOGIC
         if (nextGameObject instanceof Trap && room.getCurrentGameCharacter() instanceof BigFish bf) {
             List<GameCharacter> toKill = new ArrayList<>();
@@ -59,7 +65,7 @@ public class MovementSystem {
         return true;
     }
 
-    private boolean handlePushableObjs(GameObject nextGameObject, Point2D nextPointGC, Vector2D vector, Room room) {
+    private boolean handlePushableObjs(GameObject nextGameObject, Point2D nextPointGC, Vector2D vector) {
         // PUSH OBJECT LOGIC
         if (nextGameObject.blocksMovement(room.getCurrentGameCharacter())) {
             // SE FOR UM GC A EMPURRAR UM OBJETO QUE BLOQUEIA A SUA PASSAGEM
@@ -74,7 +80,7 @@ public class MovementSystem {
                                 nextPointGC.plus(vector)
                         );
                 if (canMove) {
-                    moveGameCharacter(vector, room);
+                    moveGameCharacter(vector);
                     return false;
                 }
             }
@@ -83,14 +89,14 @@ public class MovementSystem {
         return true;
     }
 
-    private void moveGameCharacter(Vector2D vector, Room room) {
+    private void moveGameCharacter(Vector2D vector) {
         GameCharacter gc = room.getCurrentGameCharacter();
         room.removeObject(gc);
         gc.move(vector);
         room.addObject(gc);
     }
 
-    public void moveObject(Room room, GameObject obj, Point2D newPos) {
+    public void moveObject(GameObject obj, Point2D newPos) {
         room.removeObject(obj);           // Remove from board + GUI
         obj.setPosition(newPos);     // Update object's position
         room.addObject(obj);              // Add to board + GUI at new position

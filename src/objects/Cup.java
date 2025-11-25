@@ -16,7 +16,7 @@ public class Cup extends FallingObject {
     public boolean moveIfPossible(Room room, Point2D currPos, Point2D whereToGo) {
         GameObject objInNextPos = room.getGameObject(whereToGo);
         if (objInNextPos instanceof Water) {
-            room.getMovementSystem().moveObject(room, this, whereToGo);
+            room.getMovementSystem().moveObject(this, whereToGo);
             return true;
         }
         return false;

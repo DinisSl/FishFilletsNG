@@ -36,7 +36,7 @@ public class Room {
         this.activeGC = new ArrayList<>();
         this.grid = new Grid();
         this.gravitySystem = new GravitySystem();
-        this.movementSystem = new MovementSystem();
+        this.movementSystem = new MovementSystem(this);
     }
 
 
@@ -165,7 +165,7 @@ public class Room {
     }
 
     public boolean handleMovement(int k) {
-        return this.movementSystem.handleMovement(k, this);
+        return this.movementSystem.handleMovement(k);
     }
 
     public void killGameCharacter(List<GameCharacter> toKill, boolean byExplosion) {
