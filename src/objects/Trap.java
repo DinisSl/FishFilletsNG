@@ -1,20 +1,20 @@
 package objects;
 
+import interfaces.Deadly;
 import objects.management.FallingObject;
+import objects.management.GameCharacter;
 import objects.management.GameObject;
 import objects.management.Weight;
 import pt.iscte.poo.game.Room;
 import pt.iscte.poo.utils.Point2D;
 
-public class Trap extends FallingObject {
+import java.util.ArrayList;
+import java.util.List;
+
+public class Trap extends FallingObject implements Deadly {
 
     public Trap(Point2D p) {
         super(p);
-    }
-
-    @Override
-    public boolean moveIfPossible(Room room, Point2D currPos, Point2D whereToGo) {
-        return false;
     }
 
     @Override
@@ -35,11 +35,13 @@ public class Trap extends FallingObject {
     }
 
     @Override
-    public void onLand(Room room, Point2D currPos, Point2D posBelow) {
+    public void onLanded(Room room, Point2D posBelow) {
+        // Não acontece nada
     }
 
     @Override
-    public Weight getWeight() {
-        return Weight.HEAVY;
+    public void onCharacterContact(GameCharacter character, Room room) {
+        if (character instanceof BigFish)
+            room.killGameCharacter(List.of(character), false);
     }
 }

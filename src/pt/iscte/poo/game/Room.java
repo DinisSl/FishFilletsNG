@@ -35,7 +35,7 @@ public class Room {
         this.file = f;
         this.activeGC = new ArrayList<>();
         this.grid = new Grid();
-        this.gravitySystem = new GravitySystem();
+        this.gravitySystem = new GravitySystem(this);
         this.movementSystem = new MovementSystem(this);
     }
 
@@ -43,20 +43,22 @@ public class Room {
     /*-----------------------------------------------------------
     GETTERS/SETTERS FOR DIFFERENT SYSTEMS
     -----------------------------------------------------------*/
-    public List<GameCharacter> getActiveGC() {
-        return activeGC;
+    public List<GameCharacter> getActiveGCCopy() {
+        return List.copyOf(this.activeGC);
     }
-
+    public List<GameCharacter> getActiveGC() {
+        return this.activeGC;
+    }
     public Grid getGrid() {
         return this.grid;
     }
 
     public GravitySystem getGravitySystem() {
-        return gravitySystem;
+        return this.gravitySystem;
     }
 
     public MovementSystem getMovementSystem() {
-        return movementSystem;
+        return this.movementSystem;
     }
 
 
@@ -64,7 +66,7 @@ public class Room {
     CURRENT GAME CHARACTER
     -----------------------------------------------------------*/
     public GameCharacter getCurrentGameCharacter() {
-        return currentGameCharacter;
+        return this.currentGameCharacter;
     }
 
     public void setCurrentGameCharacter(GameCharacter currentGameCharacter) {
@@ -161,7 +163,7 @@ public class Room {
     HANDLES MOVEMENT/COLLISIONS/EXIT
     -----------------------------------------------------------*/
     public void handleGravity() {
-        gravitySystem.update(this);
+        gravitySystem.update();
     }
 
     public boolean handleMovement(int k) {

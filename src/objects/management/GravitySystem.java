@@ -1,5 +1,6 @@
 package objects.management;
 
+import interfaces.Destroyable;
 import objects.Blood;
 import objects.Explosion;
 import objects.Water;
@@ -10,26 +11,54 @@ import pt.iscte.poo.utils.Point2D;
 import java.util.List;
 
 public class GravitySystem {
+    private final Room room;
 
-    public void update(Room room) {
-        processFalling(room);
-        cleanupExplosions(room);
+    public GravitySystem(Room room) {
+        this.room = room;
+    }
+    public void update() {
+        processFalling();
+        cleanupExplosions();
+        checkOverloadedGC();
     }
 
-    private void processFalling(Room room) {
+    public void checkOverloadedGC() {
+        countFallingObjectsAboveGC();
+        List<GameCharacter> activeGC = this.room.getActiveGCCopy();
+
+        for (GameCharacter gc : activeGC) {
+            gc.checkSupportOverload(this.room);
+        }
+    }
+
+    public void countFallingObjectsAboveGC() {
+        List<GameCharacter> activeGC = this.room.getActiveGCCopy();
+
+        for (GameCharacter gc : activeGC) {
+            List<GameObject> objsAbove = this.room.getGrid().allObjectsAbove(gc.getPosition());
+            for (GameObject go : objsAbove) {
+                if (go instanceof FallingObject fo) {
+                    gc.addSupportedObject(fo);
+                } else {
+                    break;
+                }
+            }
+        }
+    }
+
+    private void processFalling() {
         List<FallingObject> fallingObjects =
                 room.getGrid().listAllObjectsOfType(FallingObject.class);
 
         for (FallingObject fo : fallingObjects)
-            tryToFallOneStep(fo, room);
+            tryToFallOneStep(fo);
     }
 
-    private void tryToFallOneStep(FallingObject obj, Room room) {
+    private void tryToFallOneStep(FallingObject obj) {
         Point2D currPos = obj.getPosition();
         Point2D posBelow = currPos.plus(Direction.DOWN.asVector());
 
-        if (room.getGrid().isInBounds(posBelow)) {
-            obj.setFalling(false);
+        if (!room.getGrid().isInBounds(posBelow)) {
             room.removeObject(obj);
             return;
         }
@@ -37,15 +66,18 @@ public class GravitySystem {
         GameObject objBelow = room.getGrid().getAt(posBelow);
 
         if ((objBelow instanceof Water || objBelow instanceof Blood)) {
-            obj.setFalling(true);
+            if (!obj.isFalling())
+                obj.onStartFall(currPos);
             room.getMovementSystem().moveObject(obj, posBelow);
+        } else if (objBelow instanceof Destroyable destroyable){
+            if (destroyable.canBeDestroyedBy(obj))
+                destroyable.onDestroyed(room);
         } else {
-            obj.setFalling(false);
-            obj.onLand(room, currPos, posBelow);
+            obj.onLanded(room, posBelow);
         }
     }
 
-    private void cleanupExplosions(Room room) {
+    private void cleanupExplosions() {
         List<Explosion> explosions = room.getGrid().listAllObjectsOfType(Explosion.class);
         long currTime = System.currentTimeMillis();
         for (Explosion ex : explosions) {
@@ -53,4 +85,6 @@ public class GravitySystem {
                 room.removeObject(ex);
         }
     }
+
+
 }

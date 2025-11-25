@@ -1,5 +1,6 @@
 package objects;
 
+import interfaces.Pushable;
 import objects.management.FallingObject;
 import objects.management.GameCharacter;
 import objects.management.GameObject;
@@ -10,32 +11,19 @@ import pt.iscte.poo.utils.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Stone extends FallingObject{
+public class Stone extends FallingObject implements Pushable {
 
     public Stone(Point2D p) {
         super(p);
     }
 
     @Override
-    public boolean moveIfPossible(Room room, Point2D currPos, Point2D whereToGo) {
-        GameCharacter gc = room.getCurrentGameCharacter();
-        GameObject objInNextPos = room.getGameObject(whereToGo);
-        if (objInNextPos instanceof Water && gc instanceof BigFish) {
-            room.getMovementSystem().moveObject(this, whereToGo);
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public void onLand(Room room, Point2D currPos, Point2D posBelow) {
-        GameObject destObj = room.getGameObject(posBelow);
+    public void onLanded(Room room, Point2D landedOn) {
+        GameObject destObj = room.getGameObject(landedOn);
         List<GameCharacter> toKill = new ArrayList<>();
         if (destObj instanceof SmallFish sf) {
             toKill.add(sf);
             room.killGameCharacter(toKill, false);
-        } else if (destObj instanceof Trunk) {
-            room.removeObject(destObj);
         }
     }
 
@@ -48,5 +36,21 @@ public class Stone extends FallingObject{
     @Override
     public Weight getWeight() {
         return Weight.HEAVY;
+    }
+
+    @Override
+    public boolean canBePushedBy(GameCharacter character) {
+        return character instanceof BigFish;
+    }
+
+    @Override
+    public boolean push(Room room, Point2D from, Point2D to) {
+        GameCharacter gc = room.getCurrentGameCharacter();
+        GameObject objInNextPos = room.getGameObject(to);
+        if (objInNextPos instanceof Water && gc instanceof BigFish) {
+            room.getMovementSystem().moveObject(this, to);
+            return true;
+        }
+        return false;
     }
 }

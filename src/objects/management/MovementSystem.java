@@ -1,13 +1,11 @@
 package objects.management;
 
-import objects.*;
+import interfaces.Deadly;
+import interfaces.Pushable;
 import pt.iscte.poo.game.Room;
 import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;
 import pt.iscte.poo.utils.Vector2D;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @SuppressWarnings("ClassCanBeRecord")
 public class MovementSystem {
@@ -26,10 +24,7 @@ public class MovementSystem {
         if (nextGameObject == null)
             return handleExit();
 
-        if (!handleTraps(nextGameObject))
-            return false;
-
-        if (!handlePushableObjs(nextGameObject, nextPointGC, vector))
+        if (!handleSpecialObjs(nextGameObject, nextPointGC, vector))
             return false;
 
         moveGameCharacter(vector);
@@ -46,59 +41,75 @@ public class MovementSystem {
 
         // Se a lista estiver vazia significa que o último GameCharacter
         // já passou logo já completou o nível e devolve true
-        if (room.getActiveGC().isEmpty())
+        if (room.getActiveGCCopy().isEmpty())
             return true;
 
         // Se ainda não passaram os GameCharacter todos então troca o peixe
-        room.setCurrentGameCharacter(room.getActiveGC().getFirst());
+        room.setCurrentGameCharacter(room.getActiveGCCopy().getFirst());
         return false;
     }
 
-    private boolean handleTraps(GameObject nextGameObject) {
-        // TRAP LOGIC
-        if (nextGameObject instanceof Trap && room.getCurrentGameCharacter() instanceof BigFish bf) {
-            List<GameCharacter> toKill = new ArrayList<>();
-            toKill.add(bf);
-            room.killGameCharacter(toKill, false);
-            return false; // PARAR A EXECUÇÃO IMEDIATAMENTE APÓS A MORTE
-        }
-        return true;
-    }
-
-    private boolean handlePushableObjs(GameObject nextGameObject, Point2D nextPointGC, Vector2D vector) {
+    private boolean handleSpecialObjs(GameObject nextGameObject, Point2D nextPointGC, Vector2D vector) {
+        GameCharacter currentGC = room.getCurrentGameCharacter();
         // PUSH OBJECT LOGIC
-        if (nextGameObject.blocksMovement(room.getCurrentGameCharacter())) {
+        if (nextGameObject.blocksMovement(currentGC)) {
             // SE FOR UM GC A EMPURRAR UM OBJETO QUE BLOQUEIA A SUA PASSAGEM
             // VAI VER SE É UM OBJETO QUE PODE CAIR, OU SEJA, PODE SER EMPURRADO
-            if (nextGameObject instanceof FallingObject fo) {
+            if (nextGameObject instanceof Pushable pushable) {
                 // SE FOR POSSÍVEL MEXE O OBJETO E DEPOIS ESTA FUNÇÃO
                 // MEXE O GC
-                boolean canMove =
-                        fo.moveIfPossible(
-                                room,
-                                nextPointGC,
-                                nextPointGC.plus(vector)
-                        );
-                if (canMove) {
-                    moveGameCharacter(vector);
-                    return false;
+                if (pushable.canBePushedBy(currentGC)) {
+                    boolean pushed =
+                            pushable.push(
+                                    room,
+                                    nextPointGC,
+                                    nextPointGC.plus(vector)
+                            );
+                    if (pushed) {
+                        moveGameCharacter(vector);
+                        return false;
+                    }
                 }
+            }
+
+            if (nextGameObject instanceof Deadly deadly) {
+                deadly.onCharacterContact(currentGC, room);
+                return false;
             }
             return false;
         }
         return true;
     }
 
+    /*Obtém o Game Character atual
+    Remove da grid e do GUI
+    Atualiza a sua posição
+    Adiciona de volta à grid e adiciona ao GUI*/
     private void moveGameCharacter(Vector2D vector) {
         GameCharacter gc = room.getCurrentGameCharacter();
+        gc.clearSupportedObjects();
         room.removeObject(gc);
         gc.move(vector);
         room.addObject(gc);
     }
 
     public void moveObject(GameObject obj, Point2D newPos) {
-        room.removeObject(obj);           // Remove from board + GUI
-        obj.setPosition(newPos);     // Update object's position
-        room.addObject(obj);              // Add to board + GUI at new position
+        /*Remove o Falling Object da lista de objetos suportados do Game Character
+        no caso de um Game Object ser removido de cima de um Game Character por
+        uma bomba ou por outro GameCharacter, sem que o próprio Game Character
+        se tenha movimentado*/
+        if (obj instanceof FallingObject fo) {
+            Point2D oldPosBelow = obj.getPosition().plus(Direction.DOWN.asVector());
+            GameObject oldSupporter = room.getGameObject(oldPosBelow);
+            if (oldSupporter instanceof GameCharacter gc)
+                gc.removeSupportedObject(fo);
+        }
+
+        /*Remove da grid e do GUI
+        Atualiza a posição do Game Object
+        Adiciona de volta à grid e adiciona ao GUI*/
+        room.removeObject(obj);
+        obj.setPosition(newPos);
+        room.addObject(obj);
     }
 }

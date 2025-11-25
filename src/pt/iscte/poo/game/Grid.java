@@ -23,7 +23,7 @@ public class Grid {
     public boolean isInBounds(Point2D p) {
         int x = p.getX();
         int y = p.getY();
-        return x < 0 || x >= LENGTH || y < 0 || y >= WIDTH;
+        return x >= 0 && x < LENGTH && y >= 0 && y < WIDTH;
     }
 
     // Inicializa o Hash Map com listas vazias nos respetivos pontos
@@ -37,7 +37,7 @@ public class Grid {
     }
 
     public GameObject getAt(Point2D p) {
-        if (isInBounds(p)) return null;
+        if (!isInBounds(p)) return null;
 
         List<GameObject> objsInPos = this.grid.get(p);
         GameObject gameObjectFinal = null;
@@ -81,5 +81,16 @@ public class Grid {
         }
 
         return list;
+    }
+
+    public List<GameObject> allObjectsAbove(Point2D p) {
+        int y = p.getY() - 1; // Porque queremos os objetos em cima deste ponto
+        int x = p.getX();
+        List<GameObject> objsAbove = new ArrayList<>();
+
+        for (int i = y; i >= 0; i--) {
+            objsAbove.add(getAt(new Point2D(x, i)));
+        }
+        return objsAbove;
     }
 }
