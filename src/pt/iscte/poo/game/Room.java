@@ -160,7 +160,7 @@ public class Room {
     /*-----------------------------------------------------------
     HANDLES MOVEMENT/COLLISIONS/EXIT
     -----------------------------------------------------------*/
-    public void applyGravity() {
+    public void handleGravity() {
         gravitySystem.update(this);
     }
 

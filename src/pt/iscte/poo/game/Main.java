@@ -6,7 +6,7 @@ public class Main {
 
 	public static void main(String[] args) {
 		ImageGUI gui = ImageGUI.getInstance();
-		GameEngine engine = new GameEngine();
+		GameEngine engine = GameEngine.getInstance();
 		gui.registerObserver(engine);
 		gui.go();
 		engine.startLevel();
