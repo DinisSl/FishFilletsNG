@@ -22,7 +22,7 @@ public class Trunk extends GameObject implements Destroyable {
 
     @Override
     public int getLayer() {
-        return 1;
+        return super.LAYER_OBSTACLES;
     }
 
     @Override

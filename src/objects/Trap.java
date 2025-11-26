@@ -23,11 +23,6 @@ public class Trap extends FallingObject implements Deadly {
     }
 
     @Override
-    public int getLayer() {
-        return 1;
-    }
-
-    @Override
     public boolean blocksMovement(GameObject gameCharacter) {
         // Pequeno passa não bloqueia
         // Grande bloqueia e morre (morte tratada no engine

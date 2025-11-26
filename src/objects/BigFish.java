@@ -19,13 +19,13 @@ public class BigFish extends GameCharacter {
 
 
 
-    //    Se tiver a apontar para a direita devolve o bigFishRight,
-    // se tiver a apontar para a esquerda devolve o bigFishLeft
+    // Se tiver a apontar para a direita devolve o bigFishRight,
+    // Se tiver a apontar para a esquerda devolve o bigFishLeft
     @Override
 	public String getName() {
-        if (super.getCurrentDirection().equals(Direction.RIGHT)) {
+        if (super.getCurrentDirection() == Direction.RIGHT) {
             return "bigFishRight";
-        } else if (super.getCurrentDirection().equals(Direction.LEFT)) {
+        } else if (super.getCurrentDirection() == Direction.LEFT) {
             return "bigFishLeft";
         }
         return "bigFishLeft";

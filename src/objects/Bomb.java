@@ -56,7 +56,7 @@ public class Bomb extends FallingObject implements Pushable {
         GameObject objBelow = room.getGameObject(posObjBelow);
 
         // SE A BOMBA ESTIVER SUPORTADA POR UM GAME CHARACTER OU A
-        // POSIÇÃO PARA A QUAL ELA VAI SER EMPURRADA SÒ CONTEM ÁGUA
+        // POSIÇÃO PARA A QUAL ELA VAI SER EMPURRADA SÓ CONTEM ÁGUA
         if (objInNextPos instanceof Water || objBelow instanceof GameCharacter) {
             // SE ESTIVER A ESR SUPORTADA POR UM GAME CHARACTER
             // ATUALIZAMOS A originalY PARA A CAMADA ATUAL

@@ -39,20 +39,6 @@ public class Cup extends FallingObject implements Pushable {
 
     @Override
     public boolean push(Room room, Point2D from, Point2D to) {
-        GameCharacter gc = room.getCurrentGameCharacter();
-        Vector2D objMovVector = Vector2D.movementVector(from, to);
-        Direction possibleObjDir = Direction.forVector(objMovVector);
-
-//        if (possibleObjDir == Direction.UP || possibleObjDir == Direction.DOWN) {
-//            if (gc instanceof SmallFish && this.getWeight() == Weight.LIGHT) {
-//                GameObject objInNextPos = room.getGameObject(to);
-//                if (objInNextPos instanceof Water) {
-//                    room.getMovementSystem().moveObject(this, to);
-//                    return true;
-//                }
-//            }
-//        }
-
         GameObject objInNextPos = room.getGameObject(to);
         if (objInNextPos instanceof Water) {
             room.getMovementSystem().moveObject(this, to);

@@ -17,7 +17,7 @@ public class HoledWall extends GameObject {
 
     @Override
     public int getLayer() {
-        return 2;
+        return super.LAYER_OBSTACLES;
     }
 
 //    Se o GameCharacter for o SmallFish não bloqueia o movimento se for o BigFish bloqueia

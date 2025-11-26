@@ -17,7 +17,7 @@ public class Water extends GameObject {
 
 	@Override
 	public int getLayer() {
-		return 0;
+		return super.LAYER_WATER;
 	}
 
     @Override

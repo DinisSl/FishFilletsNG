@@ -22,6 +22,6 @@ public class Blood extends GameObject {
 
     @Override
     public int getLayer() {
-        return 1;
+        return super.LAYER_EFFECTS;
     }
 }

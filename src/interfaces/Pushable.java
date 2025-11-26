@@ -9,5 +9,4 @@ public interface Pushable {
     boolean canBePushedBy(GameCharacter character);
     boolean push(Room room, Point2D from, Point2D to);
     Weight getWeight();
-
 }

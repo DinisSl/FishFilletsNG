@@ -19,7 +19,7 @@ public class SteelBeam extends GameObject {
             return "steelVertical";
         return "steelHorizontal"; }
     @Override
-    public int getLayer() { return 2; }
+    public int getLayer() { return super.LAYER_OBSTACLES; }
 
     @Override
     public boolean blocksMovement(GameObject gameCharacter) {

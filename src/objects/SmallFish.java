@@ -21,9 +21,9 @@ public class SmallFish extends GameCharacter {
     Se tiver a apontar para a esquerda devolve o smallFishLeft*/
 	@Override
 	public String getName() {
-		if (super.getCurrentDirection().equals(Direction.RIGHT)) {
+		if (super.getCurrentDirection() == Direction.RIGHT) {
             return "smallFishRight";
-        } else if (super.getCurrentDirection().equals(Direction.LEFT)) {
+        } else if (super.getCurrentDirection() == Direction.LEFT) {
             return "smallFishLeft";
         }
         return "smallFishLeft";

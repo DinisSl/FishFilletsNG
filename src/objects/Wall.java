@@ -13,7 +13,7 @@ public class Wall extends GameObject {
         return "wall";
     }
     @Override
-    public int getLayer() { return 2; }
+    public int getLayer() { return super.LAYER_OBSTACLES; }
 
     @Override
     public boolean blocksMovement(GameObject gameCharacter) {
