@@ -28,7 +28,7 @@ public class SmallFish extends GameCharacter {
         }
         return "smallFishLeft";
 	}
-//    Se o BigFish bater no SmallFish bloqueia se n passa
+    // Se o BigFish bater no SmallFish bloqueia se n passa
     @Override
     public boolean blocksMovement(GameObject gameCharacter) {
         return true;

@@ -1,15 +1,14 @@
 package objects.management;
 
 import interfaces.Destroyable;
-import objects.Blood;
-import objects.Explosion;
-import objects.Water;
+import objects.*;
 import pt.iscte.poo.game.Room;
 import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;
 
 import java.util.List;
 
+@SuppressWarnings("ClassCanBeRecord")
 public class GravitySystem {
     private final Room room;
 
@@ -22,6 +21,10 @@ public class GravitySystem {
         checkOverloadedGC();
     }
 
+
+    /*------------------------------------------------------------------
+    VERIFICA E ATUALIZA OS ITEMS SUPORTADOS POR TODOS OS GAME CHARACTERS
+    --------------------------------------------------------------------*/
     public void checkOverloadedGC() {
         countFallingObjectsAboveGC();
         List<GameCharacter> activeGC = this.room.getActiveGCCopy();
@@ -35,7 +38,7 @@ public class GravitySystem {
         List<GameCharacter> activeGC = this.room.getActiveGCCopy();
 
         for (GameCharacter gc : activeGC) {
-            List<GameObject> objsAbove = this.room.getGrid().allObjectsAbove(gc.getPosition());
+            List<GameObject> objsAbove = this.room.getGrid().allObjectsAboveToSide(gc.getPosition(), Direction.UP);
             for (GameObject go : objsAbove) {
                 if (go instanceof FallingObject fo) {
                     gc.addSupportedObject(fo);
@@ -46,6 +49,10 @@ public class GravitySystem {
         }
     }
 
+
+    /*-----------------------------------------------------------
+    GERE A QUEDA DOS OBJETOS
+    -----------------------------------------------------------*/
     private void processFalling() {
         List<FallingObject> fallingObjects =
                 room.getGrid().listAllObjectsOfType(FallingObject.class);
@@ -59,15 +66,21 @@ public class GravitySystem {
         Point2D posBelow = currPos.plus(Direction.DOWN.asVector());
 
         if (!room.getGrid().isInBounds(posBelow)) {
+            System.out.println("REMOVE " + obj.getName());
             room.removeObject(obj);
             return;
         }
 
         GameObject objBelow = room.getGrid().getAt(posBelow);
 
+        if (obj instanceof Cup && objBelow instanceof HoledWall)
+            room.getMovementSystem().moveObject(obj, posBelow);
+        if (obj instanceof Trap && objBelow instanceof SmallFish)
+            room.getMovementSystem().moveObject(obj, posBelow);
+
         if ((objBelow instanceof Water || objBelow instanceof Blood)) {
             if (!obj.isFalling())
-                obj.onStartFall(currPos);
+                obj.onStartFall();
             room.getMovementSystem().moveObject(obj, posBelow);
         } else if (objBelow instanceof Destroyable destroyable){
             if (destroyable.canBeDestroyedBy(obj))
@@ -85,6 +98,5 @@ public class GravitySystem {
                 room.removeObject(ex);
         }
     }
-
 
 }

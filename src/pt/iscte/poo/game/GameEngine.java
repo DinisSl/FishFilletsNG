@@ -19,7 +19,7 @@ public class GameEngine implements Observer {
     private Room currentRoom;
     // Guarda o índice da Room atual na lista rooms
     private int currentRoomNumber;
-    private int lastTickProcessed = 0;
+    public int lastTickProcessed = 0;
 
     private GameEngine() {
         // Inicializa a lista rooms
@@ -79,11 +79,17 @@ public class GameEngine implements Observer {
     public void update(Observed source) {
 
         if (ImageGUI.getInstance().wasKeyPressed()) {
-
             int k = ImageGUI.getInstance().keyPressed();
+
             // Se a tecla premida for espaço troca o peixe
             if(k == KeyEvent.VK_SPACE)
                 this.currentRoom.changeCurrentGameCharacterIfAllowed();
+
+            // Se a tecla premida for o R recomeça o nível atual
+            if (k == KeyEvent.VK_R)
+                this.currentRoom.restartRoom();
+
+
             // Se a tecla premida for uma direção válida
             if (Direction.isDirection(k)) {
                 // Vê se a room Atual já foi concluída
@@ -99,12 +105,7 @@ public class GameEngine implements Observer {
                         startLevel();
                     }
                 }
-
             }
-            // Se a tecla premida for o R recomeça o nível atual
-            if (k == KeyEvent.VK_R)
-                this.currentRoom.restartRoom();
-
         }
 
         int t = ImageGUI.getInstance().getTicks();

@@ -2,10 +2,15 @@ package objects.management;
 
 import interfaces.Deadly;
 import interfaces.Pushable;
+import objects.BigFish;
+import objects.Water;
 import pt.iscte.poo.game.Room;
 import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;
 import pt.iscte.poo.utils.Vector2D;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @SuppressWarnings("ClassCanBeRecord")
 public class MovementSystem {
@@ -21,18 +26,79 @@ public class MovementSystem {
         Point2D nextPointGC = room.getCurrentGameCharacter().getNextPosition(vector);
         GameObject nextGameObject = room.getGameObject(nextPointGC);
 
-        if (nextGameObject == null)
+        if (nextGameObject == null) {
             return handleExit();
+        }
 
-        if (!handleSpecialObjs(nextGameObject, nextPointGC, vector))
+        if (nextGameObject.blocksMovement(room.getCurrentGameCharacter())) {
+            handleBlockedMovement(nextGameObject, nextPointGC, vector);
             return false;
+        }
 
         moveGameCharacter(vector);
         return false;
     }
 
+    private void handleBlockedMovement(GameObject nextGameObject, Point2D nextPointGC, Vector2D vector) {
+        GameCharacter currentGC = room.getCurrentGameCharacter();
+        if (nextGameObject instanceof Pushable pushable) {
+            handlePushableObject(pushable, nextPointGC, vector);
+        }
 
-    // SUBMETHODS, ONLY CALLED BY handleMovement(int k, Room room){}
+        if (nextGameObject instanceof Deadly deadly) {
+            deadly.onCharacterContact(currentGC, room);
+        }
+    }
+
+    private void handlePushableObject(Pushable pushable, Point2D nextPointGC, Vector2D vector) {
+        GameCharacter currentGC = room.getCurrentGameCharacter();
+
+        if (!pushable.canBePushedBy(currentGC)) return;
+
+        if (currentGC instanceof BigFish) {
+            // Pedir à Grid todos os objetos naquela direção
+            Direction dir = Direction.forVector(vector);
+            List<GameObject> lineOfObjects = room.getGrid().allObjectsAboveToSide(room.getCurrentGameCharacter().getPosition(), dir);
+
+            List<Pushable> pushChain = new ArrayList<>();
+            boolean canMove = false;
+
+            // Analisar a linha para ver o que vamos empurrar
+            for (GameObject obj : lineOfObjects) {
+                if (obj instanceof Water) {
+                    // Encontrámos um buraco vazio, podemos empurrar tudo até aqui!
+                    canMove = true;
+                    break;
+                }
+
+                if (obj instanceof Pushable p && p.canBePushedBy(currentGC)) {
+                    pushChain.add(p);
+                } else {
+                    // Encontrámos uma Parede ou algo que o peixe não empurra.
+                    // Paramos imediatamente. Não é possível mover.
+                    break;
+                }
+            }
+
+            // Executar o empurrão (de trás para a frente)
+            if (canMove && !pushChain.isEmpty()) {
+                for (int i = pushChain.size() - 1; i >= 0; i--) {
+                    Pushable p = pushChain.get(i);
+                    GameObject obj = (GameObject) p;
+                    p.push(room, obj.getPosition(), obj.getPosition().plus(vector));
+                }
+                moveGameCharacter(vector);
+            }
+
+        } else {
+            // Lógica do SmallFish (apenas 1 objeto)
+            boolean pushed = pushable.push(room, nextPointGC, nextPointGC.plus(vector));
+            if (pushed) {
+                moveGameCharacter(vector);
+            }
+        }
+    }
+
     // Este metodo só é chamado quando um peixe sai do jogo
     private boolean handleExit() {
         // Remove o currentGameCharacter da Room e da List
@@ -47,38 +113,6 @@ public class MovementSystem {
         // Se ainda não passaram os GameCharacter todos então troca o peixe
         room.setCurrentGameCharacter(room.getActiveGCCopy().getFirst());
         return false;
-    }
-
-    private boolean handleSpecialObjs(GameObject nextGameObject, Point2D nextPointGC, Vector2D vector) {
-        GameCharacter currentGC = room.getCurrentGameCharacter();
-        // PUSH OBJECT LOGIC
-        if (nextGameObject.blocksMovement(currentGC)) {
-            // SE FOR UM GC A EMPURRAR UM OBJETO QUE BLOQUEIA A SUA PASSAGEM
-            // VAI VER SE É UM OBJETO QUE PODE CAIR, OU SEJA, PODE SER EMPURRADO
-            if (nextGameObject instanceof Pushable pushable) {
-                // SE FOR POSSÍVEL MEXE O OBJETO E DEPOIS ESTA FUNÇÃO
-                // MEXE O GC
-                if (pushable.canBePushedBy(currentGC)) {
-                    boolean pushed =
-                            pushable.push(
-                                    room,
-                                    nextPointGC,
-                                    nextPointGC.plus(vector)
-                            );
-                    if (pushed) {
-                        moveGameCharacter(vector);
-                        return false;
-                    }
-                }
-            }
-
-            if (nextGameObject instanceof Deadly deadly) {
-                deadly.onCharacterContact(currentGC, room);
-                return false;
-            }
-            return false;
-        }
-        return true;
     }
 
     /*Obtém o Game Character atual

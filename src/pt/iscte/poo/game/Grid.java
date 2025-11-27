@@ -2,6 +2,7 @@ package pt.iscte.poo.game;
 
 import objects.Water;
 import objects.management.GameObject;
+import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;
 
 import java.util.ArrayList;
@@ -83,14 +84,18 @@ public class Grid {
         return list;
     }
 
-    public List<GameObject> allObjectsAbove(Point2D p) {
-        int y = p.getY() - 1; // Porque queremos os objetos em cima deste ponto
-        int x = p.getX();
-        List<GameObject> objsAbove = new ArrayList<>();
+    public List<GameObject> allObjectsAboveToSide(Point2D p, Direction dir) {
+        List<GameObject> objsInDir = new ArrayList<>();
 
-        for (int i = y; i >= 0; i--) {
-            objsAbove.add(getAt(new Point2D(x, i)));
+        Point2D currPos = p.plus(dir.asVector());
+
+        while (isInBounds(currPos)) {
+            GameObject object = getAt(currPos);
+
+            objsInDir.add(object);
+
+            currPos = currPos.plus(dir.asVector());
         }
-        return objsAbove;
+        return objsInDir;
     }
 }

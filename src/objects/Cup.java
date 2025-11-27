@@ -10,6 +10,9 @@ import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;
 import pt.iscte.poo.utils.Vector2D;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Cup extends FallingObject implements Pushable {
 
     public Cup(Point2D p) {

@@ -11,9 +11,9 @@ public abstract class FallingObject extends GameObject implements GravityAffecte
         this.falling = false;
     }
 
-    //    GravityAffected interface
+    // GravityAffected interface
     @Override
-    public void onStartFall(Point2D from) {
+    public void onStartFall() {
         this.falling = true;
     }
     @Override
@@ -21,7 +21,7 @@ public abstract class FallingObject extends GameObject implements GravityAffecte
         return this.falling;
     }
 
-    //    GameObject metodo abstrato da classe abstrata
+    // GameObject metodo abstrato da classe abstrata
     @Override
     public boolean blocksMovement(GameObject gameCharacter) {
         return true;
@@ -29,6 +29,6 @@ public abstract class FallingObject extends GameObject implements GravityAffecte
 
     @Override
     public int getLayer() {
-        return 2; // para ficar visível por cima
+        return super.LAYER_OBSTACLES; // para ficar visível por cima
     }
 }

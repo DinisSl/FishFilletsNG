@@ -21,12 +21,11 @@ public class Room {
     private final List<GameCharacter> activeGC;
     // Serve para guardar os Game Objects
     private final Grid grid;
-    // Private Map<Point2D, List<GameObject>> room;
     private final File file;
     // Guarda o Game Character que está a ser controlado
     private GameCharacter currentGameCharacter;
     // Gere a gravidade do jogo
-    private final GravitySystem gravitySystem;
+    private GravitySystem gravitySystem;
     /*Gere todos os movimentos quer dos Game Characters
     quer dos Game Objects*/
     private final MovementSystem movementSystem;
@@ -41,7 +40,7 @@ public class Room {
 
 
     /*-----------------------------------------------------------
-    GETTERS/SETTERS FOR DIFFERENT SYSTEMS
+    GETTERS/SETTERS PARA OS DIFERENTES SISTEMAS
     -----------------------------------------------------------*/
     public List<GameCharacter> getActiveGCCopy() {
         return List.copyOf(this.activeGC);
@@ -73,13 +72,13 @@ public class Room {
         this.currentGameCharacter = currentGameCharacter;
     }
 
-    //    Muda o Game Character que está a ser controlado
+    // Muda o Game Character que está a ser controlado
     private void changeCurrentGameCharacter() {
         // Vai buscar o índice do currentGameCharacter na lista
         int currIndex = this.activeGC.indexOf(this.getCurrentGameCharacter());
 
-        // Calcula o índice do próximo Game Character se o currentGameCharacter
-        // for o ultimo na lista, o índice vai dar 0, ou seja, volta para o início
+         /*Calcula o índice do próximo Game Character se o currentGameCharacter
+         for o último na lista, o índice vai dar 0, ou seja, volta para o início*/
         int nextIndex = (currIndex + 1) % this.activeGC.size();
 
         // Por fim atualiza o currentGameCharacter
@@ -117,26 +116,12 @@ public class Room {
 
         try (Scanner s = new Scanner(this.file)) {
             while (s.hasNextLine()) {
-                for (int i = 0; i < 10; i++) {
+                for (int y = 0; y < 10; y++) {
                     // Preencher a linha que não tem muro "W" com espaços
                     String line = String.format("%-10s", s.nextLine());
 
-                    for (int j = 0; j < 10; j++) {
-                        Point2D p = new Point2D(j, i);
-                        addObject(new Water(p));
-
-                        char letra = line.charAt(j);
-                        /*Se não for só um espaço vazio, ou seja, àgua criamos
-                        o Game Object*/
-                        if (letra != ' ') {
-                            GameObject gameObject = GameObject.createGameObject(letra, p);
-
-                            // Se for GameCharacter adicioná-lo à lista de GC Ativos
-                            if (gameObject instanceof GameCharacter) this.activeGC.add((GameCharacter) gameObject);
-
-                            // Se não for um Game Character basta adicioná-o
-                            this.addObject(gameObject);
-                        }
+                    for (int x = 0; x < 10; x++) {
+                        processPosition(x, y, line.charAt(x));
                     }
                 }
             }
@@ -145,18 +130,33 @@ public class Room {
         } catch (FileNotFoundException e) {
             System.err.println("Ficheiro não encontrado");
         }
+    }
 
+    private void processPosition(int x, int y, char c) {
+        Point2D p = new Point2D(x, y);
+        System.out.println(p);
+        // Adiciona água a todos os pontos
+        addObject(new Water(p));
+
+        /*Se for só um espaço vazio terminamos a função, pois
+        é uma posição que apenas tem água*/
+        if (c == ' ') return;
+
+        GameObject gameObject = GameObject.createGameObject(c, p);
+        // Se não for um Game Character basta adicioná-o
+        this.addObject(gameObject);
+
+        // Se for GameCharacter adicioná-lo à lista de GC Ativos
+        if (gameObject instanceof GameCharacter) this.activeGC.add((GameCharacter) gameObject);
     }
 
     public void restartRoom() {
-        // Limpa o gui do nível atual
+        // Limpa o GUI do nível atual
         ImageGUI.getInstance().clearImages();
         // Limpa a lista de Game Characters ativos
         this.activeGC.clear();
         // Dá load à Room de volta para o estado passado pelo ficheiro
         loadRoom();
-        // Dá update ao gui para mostrar a sala atualizada
-        ImageGUI.getInstance().update();
     }
 
     /*-----------------------------------------------------------
@@ -184,20 +184,16 @@ public class Room {
     }
 
     public void explodePoints(List<Point2D> points) {
-        boolean fishSlimed = false;
         List<GameCharacter> toKill = new ArrayList<>();
 
-        // 1. Place visuals and identify victims
         for (Point2D p : points) {
             GameObject original = getGameObject(p);
 
             // Se a explosão for em cima da água não a removemos
             if (!(original instanceof Water)) {
                 /*Se um Game Character morreu adicionamo-lo à lista para matar
-                e damos flag a informar que um peixe morreu. Se não for um
-                Game Character apenas removemos o Game Object*/
+                Se não for um Game Character apenas removemos o Game Object*/
                 if (original instanceof GameCharacter gc) {
-                    fishSlimed = true;
                     toKill.add(gc);
                 } else {
                     removeObject(original);
@@ -210,7 +206,7 @@ public class Room {
 
          /*Se pelo menos um Game Character morreu devido à bomba mata
         esse/s Game Character/s*/
-        if (fishSlimed) {
+        if (!toKill.isEmpty()) {
             killGameCharacter(toKill, true);
         }
     }

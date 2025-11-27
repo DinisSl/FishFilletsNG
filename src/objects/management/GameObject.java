@@ -5,6 +5,10 @@ import pt.iscte.poo.gui.ImageTile;
 import pt.iscte.poo.utils.Point2D;
 
 public abstract class GameObject implements ImageTile {
+    public final int LAYER_WATER = 0;
+    public final int LAYER_EFFECTS = 1;
+    public final int LAYER_OBSTACLES = 2;
+    public final int LAYER_GAME_CHARACTER = 3;
 
     private Point2D position;
 
@@ -12,7 +16,7 @@ public abstract class GameObject implements ImageTile {
         this.position = position;
     }
 
-    //    Metodo estático que devolve um GameObject passando um a letra do objeto como um char
+    // Metodo estático que devolve um GameObject passando um a letra do objeto como um char
     public static GameObject createGameObject(char character, Point2D point) {
         return switch (character) {
             case 'B' -> new BigFish(point);
@@ -46,16 +50,6 @@ public abstract class GameObject implements ImageTile {
 
     public void setPosition(Point2D position) {
         this.position = position;
-    }
-
-    public boolean equals(GameObject go) {
-        boolean samePos = this.getPosition().equals(go.getPosition());
-        boolean sameName = this.getName().equals(go.getName());
-
-        if (!samePos) {
-            return false;
-        }
-        return sameName && samePos;
     }
 
     /*Metodo abstrato que controla o que acontece a cada

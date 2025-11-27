@@ -8,72 +8,80 @@ import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;
 import pt.iscte.poo.utils.Vector2D;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public abstract class GameCharacter extends GameObject {
-//    Serve para guardar o lado para que o peixe está a olhar (RIGHT OU LEFT)
+    /*Set para guardar os Falling Objects que o Game Character está
+    a suportar, utilizamos um set pois por defeito não permite duplicados*/
+    private final Set<FallingObject> supportedObjects;
+    // Serve para guardar o lado para que o peixe está a olhar (RIGHT OU LEFT)
     private Direction currentDirection;
-    private final List<FallingObject> supportedObjects;
 
     public GameCharacter(Point2D p) {
-		super(p);
-//        Ele olha inicialmente para a esquerda
+        super(p);
+        // Ele olha inicialmente para a esquerda
         this.currentDirection = Direction.LEFT;
-        this.supportedObjects = new ArrayList<>();
-	}
+        this.supportedObjects = new HashSet<>();
+    }
 
-	public void move(Vector2D dir) {
-//        Calcula o Point2D de destino do peixe
+    /*-----------------------------------------------------------
+    FUNÇÕES RELACIONADAS COM O MOVIMENTO DO GAME CHARACTER
+    -----------------------------------------------------------*/
+    public void move(Vector2D dir) {
+        // Calcula o Point2D de destino do peixe
         Point2D destination = getNextPosition(dir);
         updateCurrentDirection(super.getPosition(), destination);
-		setPosition(destination);
-	}
+        setPosition(destination);
+    }
 
     public Point2D getNextPosition(Vector2D dir) {
-//        Calcula a próxima posição do peixe somando um Vector2D a um Point2D
+        // Calcula a próxima posição do peixe somando um Vector2D a um Point2D
         Point2D currentPosition = super.getPosition();
-		return currentPosition.plus(dir);
+        return currentPosition.plus(dir);
     }
+
     private void updateCurrentDirection(Point2D a, Point2D b) {
-//        Calcula um Vector2D da proxima posição do peixe
+        // Calcula um Vector2D da proxima posição do peixe
         Vector2D vector2D = Vector2D.movementVector(a, b);
-//        Passa o Vector2D para uma Direction
+        // Passa o Vector2D para uma Direction
         Direction potentialDir = Direction.forVector(vector2D);
-//        Se a Direction for LEFT ou RIGHT atribui-a ao atributo currentDirection
+        // Se a Direction for LEFT ou RIGHT atribui-a ao atributo currentDirection
         if (potentialDir == Direction.LEFT || potentialDir == Direction.RIGHT)
             this.currentDirection = potentialDir;
     }
 
+    /*-----------------------------------------------------------
+    DIREÇÃO DO GAME CHARACTER
+    -----------------------------------------------------------*/
     public Direction getCurrentDirection() {
         return currentDirection;
     }
 
+    /*-----------------------------------------------------------
+    MÉTODOS PARA MANIPULAR O SET
+    -----------------------------------------------------------*/
     public void addSupportedObject(FallingObject fo) {
-        boolean existsEqual = false;
-        for (FallingObject obj : this.supportedObjects) {
-            if (fo.equals(obj)) {
-                existsEqual = true;
-                break;
-            }
-        }
-        if (!existsEqual)
-            this.supportedObjects.add(fo);
+        this.supportedObjects.add(fo);
     }
+
     public void removeSupportedObject(FallingObject fo) {
         this.supportedObjects.remove(fo);
     }
-    public List<FallingObject> getSupportedObjects() {
-        return List.copyOf(this.supportedObjects);
-    }
+
     public void clearSupportedObjects() {
         this.supportedObjects.clear();
     }
+
+    /*----------------------------------------------------------------
+    VERIFICA SE UM GAME CHARACTER MORRE DEVIDO AOS OBJETOS QUE SUPORTA
+    ------------------------------------------------------------------*/
     public void checkSupportOverload(Room room) {
         int heavyFO = 0;
         int lightFO = 0;
 
-        for (FallingObject fo : getSupportedObjects()) {
+        for (FallingObject fo : this.supportedObjects) {
             if (fo instanceof Pushable pushable) {
                 if (pushable.getWeight() == Weight.HEAVY) {
                     heavyFO++;
@@ -83,25 +91,28 @@ public abstract class GameCharacter extends GameObject {
             }
         }
 
-        List<GameCharacter> toKill = new ArrayList<>();
-
-        if (this instanceof BigFish) {
-            if (heavyFO > 1 || (lightFO > 0 && heavyFO > 0) )
-                toKill.add(this);
-
-        } else if (this instanceof SmallFish) {
-            if (lightFO > 1 || (lightFO > 0 && heavyFO > 0))
-                toKill.add(this);
-
+        if (shouldKill(heavyFO, lightFO)) {
+            room.killGameCharacter(List.of(this), false);
         }
-
-        if (!toKill.isEmpty())
-            room.killGameCharacter(toKill, false);
     }
 
-	@Override
-	public int getLayer() {
-		return 3;
-	}
+    public boolean shouldKill(int heavyFO, int lightFO) {
+        boolean shouldDie = false;
+
+        if (lightFO > 0 && heavyFO > 0) {
+            shouldDie = true;
+        } else if (this instanceof BigFish && heavyFO > 1) {
+            shouldDie = true;
+        } else if (this instanceof SmallFish && lightFO > 1) {
+            shouldDie = true;
+        }
+
+        return shouldDie;
+    }
+
+    @Override
+    public int getLayer() {
+        return super.LAYER_GAME_CHARACTER;
+    }
 
 }
