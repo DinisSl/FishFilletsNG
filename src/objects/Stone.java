@@ -1,6 +1,6 @@
 package objects;
 
-import interfaces.Pushable;
+import interfaces.Movable;
 import objects.management.FallingObject;
 import objects.management.GameCharacter;
 import objects.management.GameObject;
@@ -11,7 +11,7 @@ import pt.iscte.poo.utils.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Stone extends FallingObject implements Pushable {
+public class Stone extends FallingObject implements Movable {
 
     public Stone(Point2D p) {
         super(p);
@@ -48,7 +48,7 @@ public class Stone extends FallingObject implements Pushable {
         GameCharacter gc = room.getCurrentGameCharacter();
         GameObject objInNextPos = room.getGameObject(to);
         if (objInNextPos instanceof Water && gc instanceof BigFish) {
-            room.getMovementSystem().moveObject(this, to);
+            room.moveObject(this, to);
             return true;
         }
         return false;

@@ -1,9 +1,8 @@
 package objects;
 
 import interfaces.Destroyable;
-import interfaces.Pushable;
+import interfaces.Movable;
 import objects.management.FallingObject;
-import objects.management.GameCharacter;
 import objects.management.GameObject;
 import objects.management.Weight;
 import pt.iscte.poo.game.Room;
@@ -38,8 +37,8 @@ public class Trunk extends GameObject implements Destroyable {
 
     @Override
     public boolean canBeDestroyedBy(FallingObject object) {
-        if (object instanceof Pushable pushable)
-            return pushable.getWeight() == Weight.HEAVY;
+        if (object instanceof Movable movable)
+            return movable.getWeight() == Weight.HEAVY;
         return false;
     }
 }

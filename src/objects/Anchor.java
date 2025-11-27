@@ -1,6 +1,6 @@
 package objects;
 
-import interfaces.Pushable;
+import interfaces.Movable;
 import objects.management.FallingObject;
 import objects.management.GameCharacter;
 import objects.management.GameObject;
@@ -13,7 +13,7 @@ import pt.iscte.poo.utils.Vector2D;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Anchor extends FallingObject implements Pushable {
+public class Anchor extends FallingObject implements Movable {
     boolean pushedOnce;
 
     public Anchor(Point2D p) {
@@ -58,7 +58,7 @@ public class Anchor extends FallingObject implements Pushable {
             return false;
 
         if (objInNextPos instanceof Water && gc instanceof BigFish && !this.pushedOnce) {
-            room.getMovementSystem().moveObject(this, to);
+            room.moveObject(this, to);
             this.pushedOnce = true;
             return true;
         }

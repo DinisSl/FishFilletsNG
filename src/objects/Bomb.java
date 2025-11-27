@@ -1,6 +1,6 @@
 package objects;
 
-import interfaces.Pushable;
+import interfaces.Movable;
 import objects.management.FallingObject;
 import objects.management.GameCharacter;
 import objects.management.GameObject;
@@ -12,7 +12,7 @@ import pt.iscte.poo.utils.Vector2D;
 
 import java.util.List;
 
-public class Bomb extends FallingObject implements Pushable {
+public class Bomb extends FallingObject implements Movable {
     private int originalY;
 
 
@@ -63,7 +63,7 @@ public class Bomb extends FallingObject implements Pushable {
             if (objBelow instanceof GameCharacter)
                 this.originalY = objInNextPos.getPosition().getY();
             // DEPOIS MOVEMOS O OBJETO PARA ONDE ESTÁ A SER EMPURRADO
-            room.getMovementSystem().moveObject(this, to);
+            room.moveObject(this, to);
             return true;
         }
         return false;

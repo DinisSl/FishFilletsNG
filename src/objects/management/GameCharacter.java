@@ -1,6 +1,7 @@
 package objects.management;
 
-import interfaces.Pushable;
+import interfaces.Deadly;
+import interfaces.Movable;
 import objects.BigFish;
 import objects.SmallFish;
 import pt.iscte.poo.game.Room;
@@ -14,7 +15,7 @@ import java.util.Set;
 
 public abstract class GameCharacter extends GameObject {
     /*Set para guardar os Falling Objects que o Game Character está
-    a suportar, utilizamos um set pois por defeito não permite duplicados*/
+    a suportar, utilizamos um set, pois por defeito não permite duplicados*/
     private final Set<FallingObject> supportedObjects;
     // Serve para guardar o lado para que o peixe está a olhar (RIGHT OU LEFT)
     private Direction currentDirection;
@@ -82,10 +83,10 @@ public abstract class GameCharacter extends GameObject {
         int lightFO = 0;
 
         for (FallingObject fo : this.supportedObjects) {
-            if (fo instanceof Pushable pushable) {
-                if (pushable.getWeight() == Weight.HEAVY) {
+            if (fo instanceof Movable movable) {
+                if (movable.getWeight() == Weight.HEAVY) {
                     heavyFO++;
-                } else if (pushable.getWeight() == Weight.LIGHT) {
+                } else if (movable.getWeight() == Weight.LIGHT) {
                     lightFO++;
                 }
             }
@@ -108,6 +109,55 @@ public abstract class GameCharacter extends GameObject {
         }
 
         return shouldDie;
+    }
+
+    public abstract boolean processMovement(Direction direction, Room room);
+
+    // Metodo utilitário comum para realizar o movimento final se estiver livre
+    protected void moveSelf(Vector2D vector, Room room) {
+        // Limpa objetos que estava a segurar
+        this.clearSupportedObjects();
+
+        // Remove da Room, Atualiza Posição interna, Adiciona à Room
+        room.removeObject(this);
+
+        // Lógica interna de atualização de direção (existente)
+        Point2D destination = getNextPosition(vector);
+        updateCurrentDirection(super.getPosition(), destination);
+        setPosition(destination);
+
+        room.addObject(this);
+    }
+
+    // Lógica comum para interagir com objetos mortais (Armadilhas, Inimigos)
+    protected boolean checkDeadlyCollision(GameObject obj, Room room) {
+        if (obj instanceof Deadly deadly) {
+            deadly.onCharacterContact(this, room);
+            return true; // Houve colisão mortal (ou interação mortal)
+        }
+        return false;
+    }
+
+    // --- NOVA IMPLEMENTAÇÃO ---
+    @Override
+    public void update(Room room) {
+        // 1. Limpar lista antiga de objetos suportados
+        clearSupportedObjects();
+
+        // 2. Verificar o que está diretamente acima (Lógica movida do GravitySystem)
+        List<GameObject> objsAbove = room.getGrid().allObjectsAboveToSide(this.getPosition(), Direction.UP);
+
+        for (GameObject go : objsAbove) {
+            if (go instanceof FallingObject fo) {
+                addSupportedObject(fo);
+            } else {
+                // Se encontrar algo que não cai (parede), para de procurar para cima
+                break;
+            }
+        }
+
+        // 3. Verificar se morre com o peso atual
+        checkSupportOverload(room);
     }
 
     @Override

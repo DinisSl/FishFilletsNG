@@ -1,6 +1,7 @@
 package objects.management;
 
 import objects.*;
+import pt.iscte.poo.game.Room;
 import pt.iscte.poo.gui.ImageTile;
 import pt.iscte.poo.utils.Point2D;
 
@@ -55,4 +56,6 @@ public abstract class GameObject implements ImageTile {
     /*Metodo abstrato que controla o que acontece a cada
     GameCharacter cada vez que bate num GameObject*/
     public abstract boolean blocksMovement(GameObject gameCharacter);
+
+    public void update(Room room) {}
 }

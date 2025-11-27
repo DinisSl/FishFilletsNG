@@ -3,11 +3,9 @@ package pt.iscte.poo.game;
 import objects.Blood;
 import objects.Explosion;
 import objects.Water;
-import objects.management.GameCharacter;
-import objects.management.GameObject;
-import objects.management.GravitySystem;
-import objects.management.MovementSystem;
+import objects.management.*;
 import pt.iscte.poo.gui.ImageGUI;
+import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;
 
 import java.io.File;
@@ -24,18 +22,14 @@ public class Room {
     private final File file;
     // Guarda o Game Character que está a ser controlado
     private GameCharacter currentGameCharacter;
-    // Gere a gravidade do jogo
-    private GravitySystem gravitySystem;
-    /*Gere todos os movimentos quer dos Game Characters
+
+    /*Gere todos os movimentos quer dos Game Characters,
     quer dos Game Objects*/
-    private final MovementSystem movementSystem;
 
     public Room(File f) {
         this.file = f;
         this.activeGC = new ArrayList<>();
         this.grid = new Grid();
-        this.gravitySystem = new GravitySystem(this);
-        this.movementSystem = new MovementSystem(this);
     }
 
 
@@ -51,15 +45,6 @@ public class Room {
     public Grid getGrid() {
         return this.grid;
     }
-
-    public GravitySystem getGravitySystem() {
-        return this.gravitySystem;
-    }
-
-    public MovementSystem getMovementSystem() {
-        return this.movementSystem;
-    }
-
 
     /*-----------------------------------------------------------
     CURRENT GAME CHARACTER
@@ -162,13 +147,6 @@ public class Room {
     /*-----------------------------------------------------------
     HANDLES MOVEMENT/COLLISIONS/EXIT
     -----------------------------------------------------------*/
-    public void handleGravity() {
-        gravitySystem.update();
-    }
-
-    public boolean handleMovement(int k) {
-        return this.movementSystem.handleMovement(k);
-    }
 
     public void killGameCharacter(List<GameCharacter> toKill, boolean byExplosion) {
         for (GameCharacter gc : toKill) {
@@ -208,6 +186,54 @@ public class Room {
         esse/s Game Character/s*/
         if (!toKill.isEmpty()) {
             killGameCharacter(toKill, true);
+        }
+    }
+
+    /*-----------------------------------------------------------
+    *MOVE OBJECT
+    *-----------------------------------------------------------*/
+
+    // A Room agora delega o movimento diretamente ao Personagem
+    public boolean handleMovement(int k) {
+        Direction dir = Direction.directionFor(k);
+        return currentGameCharacter.processMovement(dir, this);
+    }
+
+    // Lógica movida do MovementSystem para a Room (Utilitário)
+    public void moveObject(GameObject obj, Point2D newPos) {
+        // Remove da lista de suporte se estava em cima de um personagem
+        if (obj instanceof FallingObject fo) {
+            Point2D oldPosBelow = obj.getPosition().plus(Direction.DOWN.asVector());
+            GameObject oldSupporter = getGameObject(oldPosBelow);
+            if (oldSupporter instanceof GameCharacter gc)
+                gc.removeSupportedObject(fo);
+        }
+
+        // Atualiza Grid e GUI
+        removeObject(obj);
+        obj.setPosition(newPos);
+        addObject(obj);
+    }
+
+    // Lógica de sair do nível (Movida do MovementSystem)
+    public boolean handleExit() {
+        removeObject(currentGameCharacter);
+        activeGC.remove(currentGameCharacter);
+
+        if (getActiveGCCopy().isEmpty())
+            return true;
+
+        setCurrentGameCharacter(getActiveGCCopy().getFirst());
+        return false;
+    }
+
+    public void handleGravity() {
+        // Obter todos os objetos do jogo (Bomba, Peixe, Explosão, etc)
+        // Usamos uma cópia da lista para evitar erros se um objeto se remover a si próprio durante o update
+        List<GameObject> allObjects = grid.listAllObjectsOfType(GameObject.class);
+
+        for (GameObject obj : allObjects) {
+            obj.update(this);
         }
     }
 }

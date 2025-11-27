@@ -2,6 +2,7 @@ package objects;
 
 import objects.management.GameCharacter;
 import objects.management.GameObject;
+import pt.iscte.poo.game.Room;
 import pt.iscte.poo.utils.Point2D;
 
 public class Explosion extends GameObject {
@@ -11,6 +12,18 @@ public class Explosion extends GameObject {
         super(p);
         this.startTime = startTime;
     }
+
+    // --- NOVA IMPLEMENTAÇÃO ---
+    @Override
+    public void update(Room room) {
+        long currTime = System.currentTimeMillis();
+        // Se passou 1500ms, remove-se a si própria
+        if (this.startTime + 1500 <= currTime) {
+            room.removeObject(this);
+        }
+    }
+    // --------------------------
+
     public long getStartTime() {
         return this.startTime;
     }

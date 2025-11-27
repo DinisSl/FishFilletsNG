@@ -1,20 +1,17 @@
 package objects;
 
 import interfaces.Deadly;
-import interfaces.Pushable;
+import interfaces.Movable;
 import objects.management.FallingObject;
 import objects.management.GameCharacter;
 import objects.management.GameObject;
 import objects.management.Weight;
 import pt.iscte.poo.game.Room;
-import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;
-import pt.iscte.poo.utils.Vector2D;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class Trap extends FallingObject implements Deadly, Pushable {
+public class Trap extends FallingObject implements Deadly, Movable {
 
     public Trap(Point2D p) {
         super(p);
@@ -53,7 +50,7 @@ public class Trap extends FallingObject implements Deadly, Pushable {
         GameCharacter gc = room.getCurrentGameCharacter();
         GameObject objInNextPos = room.getGameObject(to);
         if (objInNextPos instanceof Water && gc instanceof BigFish) {
-            room.getMovementSystem().moveObject(this, to);
+            room.moveObject(this, to);
             return true;
         }
         return false;
