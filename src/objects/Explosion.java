@@ -1,11 +1,11 @@
 package objects;
 
-import objects.management.GameCharacter;
+import interfaces.Fluid;
 import objects.management.GameObject;
 import pt.iscte.poo.game.Room;
 import pt.iscte.poo.utils.Point2D;
 
-public class Explosion extends GameObject {
+public class Explosion extends GameObject implements Fluid {
     long startTime;
 
     public Explosion(Point2D p, long startTime) {
@@ -21,11 +21,6 @@ public class Explosion extends GameObject {
         if (this.startTime + 1500 <= currTime) {
             room.removeObject(this);
         }
-    }
-    // --------------------------
-
-    public long getStartTime() {
-        return this.startTime;
     }
 
     @Override
@@ -43,8 +38,4 @@ public class Explosion extends GameObject {
         return super.LAYER_EFFECTS;
     }
 
-    @Override
-    public boolean isFluid() {
-        return true;
-    }
 }

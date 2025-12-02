@@ -17,22 +17,8 @@ public class BigFish extends GameCharacter {
 		super(p);
 	}
 
-    // Se tiver a apontar para a direita devolve o bigFishRight,
-    // Se tiver a apontar para a esquerda devolve o bigFishLeft
-    @Override
-	public String getName() {
-        if (super.getCurrentDirection() == Direction.RIGHT) {
-            return "buoy";
-        } else if (super.getCurrentDirection() == Direction.LEFT) {
-            return "bigFishLeft";
-        }
-        return "bigFishLeft";
-	}
-
-    // Se o SmallFish bater no BigFish bloqueia se n passa
-    @Override
-    public boolean blocksMovement(GameObject gameCharacter) {
-        return true;
+    public boolean isOverloaded(int heavyFO, int lightFO) {
+        return heavyFO > 1;
     }
 
     @Override
@@ -47,6 +33,7 @@ public class BigFish extends GameCharacter {
             // then we are blocked, even if there is a pushable Cup on top.
             if (obj.blocksMovement(this) && !(obj instanceof Movable)) {
                 checkDeadlyCollision(obj, room);
+                if (!room.getActiveGC().contains(this)) return false;
                 return false;
             }
         }
@@ -62,9 +49,11 @@ public class BigFish extends GameCharacter {
         if (nextObj.blocksMovement(this)) {
             checkDeadlyCollision(nextObj, room);
 
+            if (!room.getActiveGC().contains(this)) return false;
+
             if (nextObj instanceof Movable movable) {
                 if (movable.canBePushedBy(this)) {
-                    room.attemptChainPush(vector);
+                    attemptChainPush(vector, room);
                 }
             }
             return false;
@@ -75,12 +64,26 @@ public class BigFish extends GameCharacter {
         return false;
     }
 
+    // Se o SmallFish bater no BigFish bloqueia se n passa
+    @Override
+    public boolean blocksMovement(GameObject gameCharacter) {
+        return true;
+    }
+
     @Override
     public boolean canPush(Weight weight) {
         return true;
     }
 
-    public boolean isOverloaded(int heavyFO, int lightFO) {
-        return heavyFO > 1;
-    }
+     /*Se tiver a apontar para a direita devolve o bigFishRight,
+     Se tiver a apontar para a esquerda devolve o bigFishLeft*/
+    @Override
+	public String getName() {
+        if (super.getCurrentDirection() == Direction.RIGHT) {
+            return "bigFishRight";
+        } else if (super.getCurrentDirection() == Direction.LEFT) {
+            return "bigFishLeft";
+        }
+        return "bigFishLeft";
+	}
 }

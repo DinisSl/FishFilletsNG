@@ -1,15 +1,18 @@
 package objects;
 
+import interfaces.Fluid;
 import interfaces.Movable;
 import objects.management.FallingObject;
 import objects.management.GameCharacter;
 import objects.management.GameObject;
 import objects.management.Weight;
 import pt.iscte.poo.game.Room;
+import pt.iscte.poo.gui.ImageGUI;
 import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;
 import pt.iscte.poo.utils.Vector2D;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Bomb extends FallingObject implements Movable {
@@ -68,7 +71,7 @@ public class Bomb extends FallingObject implements Movable {
         Point2D posObjBelow = from.plus(Direction.DOWN.asVector());
         GameObject objBelow = room.getGrid().getAt(posObjBelow);
 
-        if (!objInNextPos.isFluid()) return false;
+        if (!(objInNextPos instanceof Fluid)) return false;
 
         if (objBelow instanceof GameCharacter)
             this.originalY = objInNextPos.getPosition().getY();
@@ -85,8 +88,36 @@ public class Bomb extends FallingObject implements Movable {
             if (!(objBelow instanceof GameCharacter)) {
                 room.removeObject(this);
                 List<Point2D> boomBoomPoints = this.getPosition().getNeighbourhoodPoints();
-                room.explodePoints(boomBoomPoints);
+                explodePoints(boomBoomPoints, room);
             }
+        }
+    }
+
+    public void explodePoints(List<Point2D> points, Room room) {
+        List<GameCharacter> toKill = new ArrayList<>();
+
+        for (Point2D p : points) {
+            GameObject original = room.getGrid().getAt(p);
+
+            // Se a explosão for em cima da água não a removemos
+            if (!(original instanceof Water)) {
+                /*Se um Game Character morreu adicionamo-lo à lista para matar
+                Se não for um Game Character apenas removemos o Game Object*/
+                if (original instanceof GameCharacter gc) {
+                    toKill.add(gc);
+                } else {
+                    room.removeObject(original);
+                }
+            }
+            room.addObject(new Explosion(p, System.currentTimeMillis()));
+        }
+
+        ImageGUI.getInstance().update();
+
+         /*Se pelo menos um Game Character morreu devido à bomba mata
+        esse/s Game Character/s*/
+        if (!toKill.isEmpty()) {
+            room.killGameCharacter(toKill, true);
         }
     }
 }

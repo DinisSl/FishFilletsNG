@@ -1,7 +1,6 @@
 package objects;
 
-import interfaces.Deadly;
-import interfaces.Movable;
+import interfaces.*;
 import objects.management.FallingObject;
 import objects.management.GameCharacter;
 import objects.management.GameObject;
@@ -26,23 +25,28 @@ public class Trap extends FallingObject implements Deadly, Movable {
     public boolean blocksMovement(GameObject gameCharacter) {
         // Pequeno passa não bloqueia
         // Grande bloqueia e morre (morte tratada no engine
-        return !gameCharacter.fitsInHoles();
+        return !(gameCharacter instanceof FitsInHole);
     }
 
     @Override
     public void onLanded(Room room, Point2D landedOn) {
         GameObject destObj = room.getGrid().getAt(landedOn);
 
-        if (destObj.fitsInHoles())
+        if (destObj instanceof FitsInHole)
             return;
 
-        if (destObj.canBeCrushed())
-            destObj.onCrushed(room);
+        if (destObj instanceof Destroyable d) {
+            // 1. Check if "this" falling object is heavy enough to destroy "d"
+            if (d.canBeDestroyedBy(this)) {
+                // 2. Perform the destruction
+                d.onDestroyed(room);
+            }
+        }
     }
 
     @Override
     public void onCharacterContact(GameCharacter character, Room room) {
-        if (!character.fitsInHoles())
+        if (!(character instanceof FitsInHole))
             room.killGameCharacter(List.of(character), false);
     }
 
@@ -55,7 +59,7 @@ public class Trap extends FallingObject implements Deadly, Movable {
     public boolean push(Room room, Point2D from, Point2D to) {
         GameCharacter gc = room.getCurrentGameCharacter();
         GameObject objInNextPos = room.getGrid().getAt(to);
-        if (objInNextPos.isFluid() && gc.canPush(Weight.HEAVY)) {
+        if (objInNextPos instanceof Fluid && gc.canPush(Weight.HEAVY)) {
             room.moveObject(this, to);
             return true;
         }
@@ -66,7 +70,7 @@ public class Trap extends FallingObject implements Deadly, Movable {
     protected boolean canFallThrough(GameObject objBelow) {
         if (super.canFallThrough(objBelow)) return true;
 
-        return objBelow.fitsInHoles();
+        return objBelow instanceof FitsInHole;
     }
 
     @Override

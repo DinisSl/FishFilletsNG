@@ -1,6 +1,9 @@
 package objects;
 
+import interfaces.Destroyable;
+import interfaces.FitsInHole;
 import interfaces.Movable;
+import objects.management.FallingObject;
 import objects.management.GameCharacter;
 import objects.management.GameObject;
 import objects.management.Weight;
@@ -9,15 +12,17 @@ import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;
 import pt.iscte.poo.utils.Vector2D;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class SmallFish extends GameCharacter {
+public class SmallFish extends GameCharacter implements Destroyable, FitsInHole {
 
 	public SmallFish(Point2D p) {
         super(p);
 	}
 
+    public boolean isOverloaded(int heavyFO, int lightFO) {
+        return heavyFO > 0 || lightFO > 1;
+    }
 
     @Override
     public boolean processMovement(Direction direction, Room room) {
@@ -35,12 +40,13 @@ public class SmallFish extends GameCharacter {
             // Verificar colisão mortal
             checkDeadlyCollision(nextObj, room);
 
+            if (!room.getActiveGC().contains(this)) return false;
+
             // Verificar se pode empurrar (Lógica simples do SmallFish)
-            if (nextObj.isPushable(this)) {
-                Movable movable = (Movable) nextObj;
+            if (nextObj instanceof Movable m && m.canBePushedBy(this)) {
                 Point2D pushTo = nextPos.plus(vector);
                 // Tenta empurrar o objeto. Se conseguir, o peixe move-se atrás.
-                boolean pushed = movable.push(room, nextPos, pushTo);
+                boolean pushed = m.push(room, nextPos, pushTo);
                 if (pushed) {
                     moveSelf(vector, room);
                 }
@@ -52,6 +58,27 @@ public class SmallFish extends GameCharacter {
         // 3. Caminho livre (Água ou Background)
         moveSelf(vector, room);
         return false;
+    }
+
+    @Override
+    public boolean fitsInHoles() {
+        return true;
+    }
+
+    @Override
+    public void onDestroyed(Room room) {
+        room.killGameCharacter(List.of(this), false);
+    }
+
+    @Override
+    public boolean canBeDestroyedBy(FallingObject object) {
+        return object.getWeight() == Weight.HEAVY;
+    }
+
+    // Se o BigFish bater no SmallFish bloqueia se n passa
+    @Override
+    public boolean blocksMovement(GameObject gameCharacter) {
+        return true;
     }
 
     @Override
@@ -70,31 +97,4 @@ public class SmallFish extends GameCharacter {
         }
         return "smallFishLeft";
 	}
-    // Se o BigFish bater no SmallFish bloqueia se n passa
-    @Override
-    public boolean blocksMovement(GameObject gameCharacter) {
-        return true;
-    }
-
-    @Override
-    public boolean canBeCrushed() {
-        return true;
-    }
-
-    @Override
-    public void onCrushed(Room room) {
-        // The fish defines its own death logic!
-        List<GameCharacter> self = new ArrayList<>();
-        self.add(this);
-        room.killGameCharacter(self, false);
-    }
-
-    @Override
-    public boolean fitsInHoles() {
-        return true;
-    }
-
-    public boolean isOverloaded(int heavyFO, int lightFO) {
-        return heavyFO > 0 || lightFO > 1;
-    }
 }

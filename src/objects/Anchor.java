@@ -1,5 +1,7 @@
 package objects;
 
+import interfaces.Destroyable;
+import interfaces.Fluid;
 import interfaces.Movable;
 import objects.management.FallingObject;
 import objects.management.GameCharacter;
@@ -10,8 +12,6 @@ import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;
 import pt.iscte.poo.utils.Vector2D;
 
-import java.util.ArrayList;
-import java.util.List;
 
 public class Anchor extends FallingObject implements Movable {
     boolean pushedOnce;
@@ -30,8 +30,13 @@ public class Anchor extends FallingObject implements Movable {
     public void onLanded(Room room, Point2D posBelow) {
         GameObject destObj = room.getGrid().getAt(posBelow);
 
-        if (destObj.canBeCrushed())
-            destObj.onCrushed(room);
+        if (destObj instanceof Destroyable d) {
+            // 1. Check if "this" falling object is heavy enough to destroy "d"
+            if (d.canBeDestroyedBy(this)) {
+                // 2. Perform the destruction
+                d.onDestroyed(room);
+            }
+        }
     }
 
     @Override
@@ -55,7 +60,7 @@ public class Anchor extends FallingObject implements Movable {
         if (nextDir == Direction.UP || nextDir == Direction.DOWN)
             return false;
 
-        if (objInNextPos.isFluid() && gc.canPush(Weight.HEAVY) && !this.pushedOnce) {
+        if (objInNextPos instanceof Fluid && gc.canPush(Weight.HEAVY) && !this.pushedOnce) {
             room.moveObject(this, to);
             this.pushedOnce = true;
             return true;

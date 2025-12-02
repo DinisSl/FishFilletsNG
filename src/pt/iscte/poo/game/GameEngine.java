@@ -5,6 +5,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import objects.management.GameCharacter;
+import objects.management.GameObject;
 import pt.iscte.poo.gui.ImageGUI;
 import pt.iscte.poo.observer.Observed;
 import pt.iscte.poo.observer.Observer;
@@ -66,6 +68,7 @@ public class GameEngine implements Observer {
         // Atualiza o gui para mostrar a Room
         ImageGUI.getInstance().update();
     }
+
     public void endGame(String message) {
         ImageGUI.getInstance().showMessage("Fim do jogo: ", message);
         // Termina a instância do gui
@@ -93,9 +96,9 @@ public class GameEngine implements Observer {
             // Se a tecla premida for uma direção válida
             if (Direction.isDirection(k)) {
                 // Vê se a room Atual já foi concluída
-                boolean roomPassed = this.currentRoom.handleMovement(k);
+                boolean roomFinished = processMovement(Direction.directionFor(k));
 
-                if (roomPassed) {
+                if (roomFinished) {
                     // Se for a ultima sala acaba o jogo
                     if (this.currentRoom == this.rooms.getLast()) {
                         endGame("Sucesso, fim do jogo!!!");
@@ -118,7 +121,26 @@ public class GameEngine implements Observer {
     }
 
     private void processTick() {
-        this.currentRoom.handleGravity();
+        // Obter todos os objetos do jogo (Bomba, Peixe, Explosão, etc)
+        // Usamos uma cópia da lista para evitar erros se um objeto se remover a si próprio durante o update
+        List<GameObject> allObjects = this.currentRoom.getGrid().listAllObjectsOfType(GameObject.class);
+
+        for (GameObject obj : allObjects) {
+            obj.update(currentRoom);
+        }
         this.lastTickProcessed++;
+    }
+
+    private boolean processMovement(Direction direction) {
+        GameCharacter gc = this.currentRoom.getCurrentGameCharacter();
+        boolean wantsExit = gc.processMovement(direction, this.currentRoom);
+
+        if (!wantsExit) return false;
+
+        currentRoom.removeObject(gc);
+        if (this.currentRoom.noCharactersLeft()) return true;
+
+        currentRoom.pickNextCharacter();
+        return false;
     }
 }

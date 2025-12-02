@@ -1,10 +1,10 @@
 package objects;
 
-import objects.management.GameCharacter;
+import interfaces.Fluid;
 import objects.management.GameObject;
 import pt.iscte.poo.utils.Point2D;
 
-public class Blood extends GameObject {
+public class Blood extends GameObject implements Fluid {
 
     public Blood(Point2D p) {
         super(p);
@@ -25,8 +25,4 @@ public class Blood extends GameObject {
         return super.LAYER_EFFECTS;
     }
 
-    @Override
-    public boolean isFluid() {
-        return true;
-    }
 }

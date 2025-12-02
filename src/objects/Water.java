@@ -1,10 +1,10 @@
 package objects;
 
-import objects.management.GameCharacter;
+import interfaces.Fluid;
 import objects.management.GameObject;
 import pt.iscte.poo.utils.Point2D;
 
-public class Water extends GameObject {
+public class Water extends GameObject implements Fluid {
 
 	public Water(Point2D p) {
 		super(p);
@@ -25,8 +25,4 @@ public class Water extends GameObject {
         return false;
     }
 
-    @Override
-    public boolean isFluid() {
-        return true;
-    }
 }

@@ -1,12 +1,14 @@
 package objects.management;
 
 import interfaces.Deadly;
+import interfaces.Fluid;
 import interfaces.Movable;
 import pt.iscte.poo.game.Room;
 import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;
 import pt.iscte.poo.utils.Vector2D;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -141,5 +143,43 @@ public abstract class GameCharacter extends GameObject {
     -----------------------------------------------------------*/
     public Direction getCurrentDirection() {
         return this.currentDirection;
+    }
+
+    // Lógica de empurrar em cadeia movida do MovementSystem para aqui
+    public void attemptChainPush(Vector2D vector, Room room) {
+        Direction dir = Direction.forVector(vector);
+        // Obtém objetos na direção do movimento
+        List<GameObject> lineOfObjects = room.getGrid().allObjectsAboveToSide(this.getPosition(), dir);
+
+        List<Movable> pushChain = new ArrayList<>();
+        boolean canMove = false;
+
+        for (GameObject obj : lineOfObjects) {
+            if (obj instanceof Fluid) {
+                // Encontrou espaço vazio, pode empurrar tudo até aqui
+                canMove = true;
+                break;
+            }
+
+            if (obj instanceof Movable p && p.canBePushedBy(this)) {
+                pushChain.add(p);
+            } else {
+                // Parede ou objeto imóvel
+                break;
+            }
+        }
+        // Executar o empurrão de trás para a frente
+        if (canMove && !pushChain.isEmpty()) {
+            chainPushObjects(vector, pushChain, room);
+        }
+    }
+
+    public void chainPushObjects(Vector2D vector, List<Movable> pushChain, Room room) {
+        for (int i = pushChain.size() - 1; i >= 0; i--) {
+            Movable p = pushChain.get(i);
+            GameObject obj = (GameObject) p;
+            p.push(room, obj.getPosition(), obj.getPosition().plus(vector));
+        }
+       this.moveSelf(vector, room);
     }
 }

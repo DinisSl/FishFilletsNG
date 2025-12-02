@@ -41,9 +41,6 @@ public abstract class GameObject implements ImageTile {
     /*-----------------------------------------------------------
     POSITION
     -----------------------------------------------------------*/
-    public void setPosition(int i, int j) {
-        position = new Point2D(i, j);
-    }
 
     @Override
     public Point2D getPosition() {
@@ -58,27 +55,6 @@ public abstract class GameObject implements ImageTile {
     GameCharacter cada vez que bate num GameObject*/
     public abstract boolean blocksMovement(GameObject gameCharacter);
 
-    public void update(Room room) { return; }
+    public void update(Room room) {}
 
-    public boolean isFluid() {
-        return false;
-    }
-
-    public boolean isPushable(GameCharacter gc) {
-        return false;
-    }
-
-    public void onCrushed(Room room) {}
-
-    public boolean canBeCrushed() {
-        return false;
-    }
-
-    public boolean fitsInHoles() {
-        return false;
-    }
-
-    public boolean hasHole() {
-        return false;
-    }
 }

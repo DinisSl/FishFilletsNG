@@ -1,7 +1,6 @@
 package objects.management;
 
-import interfaces.Destroyable;
-import interfaces.Movable;
+import interfaces.*;
 import pt.iscte.poo.game.Room;
 import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;
@@ -38,7 +37,7 @@ public abstract class FallingObject extends GameObject implements Movable {
 
         if (tryFallingIntoHole(room, objBelow, posBelow)) return;
 
-        if (tryDestroyObject(room, objBelow, posBelow)) return;
+        if (tryDestroyObject(room, objBelow)) return;
 
         handleLanding(room, posBelow);
     }
@@ -51,26 +50,17 @@ public abstract class FallingObject extends GameObject implements Movable {
             return true;
         }
         return false;
-
-        // Lógica geral de cair
-//        if (objBelow.isFluid()) {
-//            if (!this.falling) onStartFall();
-//
-//            room.moveObject(this, posBelow);
-//            return true;
-//        }
-//        return false;
     }
 
     private boolean tryFallingIntoHole(Room room, GameObject objBelow, Point2D posBelow) {
-        if (this.fitsInHoles() && objBelow.hasHole()) {
+        if (this instanceof FitsInHole && objBelow instanceof Passable) {
             room.moveObject(this, posBelow);
             return true;
         }
         return false;
     }
 
-    private boolean tryDestroyObject(Room room, GameObject objBelow, Point2D posBelow) {
+    private boolean tryDestroyObject(Room room, GameObject objBelow) {
         if (objBelow instanceof Destroyable destroyable) {
             // Tenta destruir o objeto abaixo (ex: Trunk)
             if (destroyable.canBeDestroyedBy(this)) {
@@ -106,13 +96,8 @@ public abstract class FallingObject extends GameObject implements Movable {
         return true;
     }
 
-    @Override
-    public boolean isPushable(GameCharacter gc) {
-        return gc.canPush(this.getWeight());
-    }
-
     protected boolean canFallThrough(GameObject objBelow) {
-        return objBelow.isFluid();
+        return objBelow instanceof Fluid;
     }
 
     @Override

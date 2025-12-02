@@ -1,5 +1,7 @@
 package objects;
 
+import interfaces.Destroyable;
+import interfaces.Fluid;
 import interfaces.Movable;
 import objects.management.FallingObject;
 import objects.management.GameCharacter;
@@ -7,9 +9,6 @@ import objects.management.GameObject;
 import objects.management.Weight;
 import pt.iscte.poo.game.Room;
 import pt.iscte.poo.utils.Point2D;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class Stone extends FallingObject implements Movable {
 
@@ -21,8 +20,13 @@ public class Stone extends FallingObject implements Movable {
     public void onLanded(Room room, Point2D landedOn) {
         GameObject destObj = room.getGrid().getAt(landedOn);
 
-        if (destObj.canBeCrushed())
-            destObj.onCrushed(room);
+        if (destObj instanceof Destroyable d) {
+            // 1. Check if "this" falling object is heavy enough to destroy "d"
+            if (d.canBeDestroyedBy(this)) {
+                // 2. Perform the destruction
+                d.onDestroyed(room);
+            }
+        }
     }
 
 //   ImageTile interface
@@ -45,7 +49,7 @@ public class Stone extends FallingObject implements Movable {
     public boolean push(Room room, Point2D from, Point2D to) {
         GameCharacter gc = room.getCurrentGameCharacter();
         GameObject objInNextPos = room.getGrid().getAt(to);
-        if (objInNextPos.isFluid() && gc.canPush(Weight.HEAVY)) {
+        if (objInNextPos instanceof Fluid && gc.canPush(Weight.HEAVY)) {
             room.moveObject(this, to);
             return true;
         }
