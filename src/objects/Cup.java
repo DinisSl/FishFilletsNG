@@ -37,12 +37,17 @@ public class Cup extends FallingObject implements Movable {
 
     @Override
     public boolean push(Room room, Point2D from, Point2D to) {
-        GameObject objInNextPos = room.getGameObject(to);
-        if (objInNextPos instanceof Water) {
+        GameObject objInNextPos = room.getGrid().getAt(to);
+        if (objInNextPos.isFluid()) {
             room.moveObject(this, to);
             return true;
         }
 
         return false;
+    }
+
+    @Override
+    public boolean fitsInHoles() {
+        return true;
     }
 }

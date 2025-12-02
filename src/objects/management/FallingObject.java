@@ -5,7 +5,6 @@ import interfaces.Movable;
 import pt.iscte.poo.game.Room;
 import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;
-import objects.*;
 
 public abstract class FallingObject extends GameObject implements Movable {
     private boolean falling;
@@ -15,7 +14,13 @@ public abstract class FallingObject extends GameObject implements Movable {
         this.falling = false;
     }
 
-    // --- NOVA IMPLEMENTAÇÃO: Lógica movida do GravitySystem ---
+    /**
+     * É chamado por Room a cada tick de jogo. Verifica o Game Object
+     * por baixo do Falling Object que está a cair. Consequentemente
+     * aplica o tipo de comportamento correspondente conforme o Game Object
+     *
+     * @param room Serve para usar os métodos disponíveis na classe Room
+     */
     @Override
     public void update(Room room) {
         Point2D currPos = getPosition();
@@ -27,37 +32,54 @@ public abstract class FallingObject extends GameObject implements Movable {
             return;
         }
 
-        GameObject objBelow = room.getGameObject(posBelow);
+        GameObject objBelow = room.getGrid().getAt(posBelow);
 
-        // Interações específicas
-        if (this instanceof Cup && objBelow instanceof HoledWall) {
+        if (tryFallingIntoBackground(room, objBelow, posBelow)) return;
+
+        if (tryFallingIntoHole(room, objBelow, posBelow)) return;
+
+        if (tryDestroyObject(room, objBelow, posBelow)) return;
+
+        handleLanding(room, posBelow);
+    }
+
+    private boolean tryFallingIntoBackground(Room room, GameObject objBelow, Point2D posBelow) {
+        if (canFallThrough(objBelow)) {
+            if (!this.isFalling()) onStartFall();
+
             room.moveObject(this, posBelow);
-            return;
+            return true;
         }
-        if (this instanceof Trap && objBelow instanceof SmallFish) {
-            room.moveObject(this, posBelow);
-            return;
-        }
+        return false;
 
         // Lógica geral de cair
-        if (objBelow instanceof Water || objBelow instanceof Blood) {
-            if (!this.falling) {
-                onStartFall();
-            }
+//        if (objBelow.isFluid()) {
+//            if (!this.falling) onStartFall();
+//
+//            room.moveObject(this, posBelow);
+//            return true;
+//        }
+//        return false;
+    }
+
+    private boolean tryFallingIntoHole(Room room, GameObject objBelow, Point2D posBelow) {
+        if (this.fitsInHoles() && objBelow.hasHole()) {
             room.moveObject(this, posBelow);
+            return true;
         }
-        else if (objBelow instanceof Destroyable destroyable) {
+        return false;
+    }
+
+    private boolean tryDestroyObject(Room room, GameObject objBelow, Point2D posBelow) {
+        if (objBelow instanceof Destroyable destroyable) {
             // Tenta destruir o objeto abaixo (ex: Trunk)
             if (destroyable.canBeDestroyedBy(this)) {
                 destroyable.onDestroyed(room);
                 // Nota: O objeto cai no próximo tick, não instantaneamente
-            } else {
-                handleLanding(room, posBelow);
             }
+            return true;
         }
-        else {
-            handleLanding(room, posBelow);
-        }
+        return false;
     }
 
     private void handleLanding(Room room, Point2D posBelow) {
@@ -67,12 +89,12 @@ public abstract class FallingObject extends GameObject implements Movable {
         }
     }
 
-
     // GravityAffected interface
     @Override
     public void onStartFall() {
         this.falling = true;
     }
+
     @Override
     public boolean isFalling() {
         return this.falling;
@@ -85,7 +107,16 @@ public abstract class FallingObject extends GameObject implements Movable {
     }
 
     @Override
+    public boolean isPushable(GameCharacter gc) {
+        return gc.canPush(this.getWeight());
+    }
+
+    protected boolean canFallThrough(GameObject objBelow) {
+        return objBelow.isFluid();
+    }
+
+    @Override
     public int getLayer() {
-        return super.LAYER_OBSTACLES; // para ficar visível por cima
+        return super.LAYER_ITEMS; // para ficar visível por cima
     }
 }

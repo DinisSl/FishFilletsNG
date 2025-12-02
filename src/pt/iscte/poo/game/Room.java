@@ -1,5 +1,6 @@
 package pt.iscte.poo.game;
 
+import interfaces.Movable;
 import objects.Blood;
 import objects.Explosion;
 import objects.Water;
@@ -7,6 +8,7 @@ import objects.management.*;
 import pt.iscte.poo.gui.ImageGUI;
 import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;
+import pt.iscte.poo.utils.Vector2D;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -78,9 +80,6 @@ public class Room {
     /*-----------------------------------------------------------
     GAME OBJECT
     -----------------------------------------------------------*/
-    public GameObject getGameObject(Point2D position) {
-        return this.grid.getAt(position);
-    }
 
     public void addObject(GameObject obj) {
         this.grid.setAt(obj);
@@ -95,14 +94,22 @@ public class Room {
     /*-----------------------------------------------------------
     MANAGE ROOM STATE
     -----------------------------------------------------------*/
-    public void loadRoom() {
-        // Inicializa o Hash Map
+    /**
+     * Carrega o mapa da sala a partir de um arquivo.
+     *
+     * Este metodo inicializa um HashMap de listas de Game Objects e lê o file "roomN.txt".
+     * Se uma linha tiver menos de 10 caracteres são adicionados espaços vazios
+     * até os ter. Isto pode acontecer numa linha que tenha um buraco na parede ("W    W    ")
+     * Por fim cada character da linha é passado a processPosition().
+     *
+     * @throws FileNotFoundException Se o arquivo especificado não for encontrado.
+     */
+    public void loadRoom() { 
         this.grid.initializeHashMapOfLists();
 
         try (Scanner s = new Scanner(this.file)) {
             while (s.hasNextLine()) {
                 for (int y = 0; y < 10; y++) {
-                    // Preencher a linha que não tem muro "W" com espaços
                     String line = String.format("%-10s", s.nextLine());
 
                     for (int x = 0; x < 10; x++) {
@@ -115,23 +122,31 @@ public class Room {
         } catch (FileNotFoundException e) {
             System.err.println("Ficheiro não encontrado");
         }
-    }
+        }
 
+    /**
+     * Processa uma posição no mapa.
+     *
+     * Este metodo recebe as coordenadas (x, y) e um caracter que representa o respetivo
+     * Game Object.
+     * Adiciona água a todas as posições por defeito.
+     * Se o caracter for um espaço vazio, a função termina, pois já adicionou àgua.
+     * Caso contrário, passa o caracter a createGameObject() que cria o objeto correspondente.
+     * Se o objeto for um Game Character, adiciona-o à lista de personagens ativas.
+     *
+     * @param x Coordenada x do Game Object.
+     * @param y Coordenada y do Game Object.
+     * @param c Caracter que representa o respetivo Game Object.
+     */
     private void processPosition(int x, int y, char c) {
         Point2D p = new Point2D(x, y);
-        System.out.println(p);
-        // Adiciona água a todos os pontos
         addObject(new Water(p));
 
-        /*Se for só um espaço vazio terminamos a função, pois
-        é uma posição que apenas tem água*/
         if (c == ' ') return;
 
         GameObject gameObject = GameObject.createGameObject(c, p);
-        // Se não for um Game Character basta adicioná-o
         this.addObject(gameObject);
 
-        // Se for GameCharacter adicioná-lo à lista de GC Ativos
         if (gameObject instanceof GameCharacter) this.activeGC.add((GameCharacter) gameObject);
     }
 
@@ -165,7 +180,7 @@ public class Room {
         List<GameCharacter> toKill = new ArrayList<>();
 
         for (Point2D p : points) {
-            GameObject original = getGameObject(p);
+            GameObject original = getGrid().getAt(p);
 
             // Se a explosão for em cima da água não a removemos
             if (!(original instanceof Water)) {
@@ -190,10 +205,9 @@ public class Room {
     }
 
     /*-----------------------------------------------------------
-    *MOVE OBJECT
-    *-----------------------------------------------------------*/
+    MOVE OBJECT
+    -----------------------------------------------------------*/
 
-    // A Room agora delega o movimento diretamente ao Personagem
     public boolean handleMovement(int k) {
         Direction dir = Direction.directionFor(k);
         return currentGameCharacter.processMovement(dir, this);
@@ -201,21 +215,13 @@ public class Room {
 
     // Lógica movida do MovementSystem para a Room (Utilitário)
     public void moveObject(GameObject obj, Point2D newPos) {
-        // Remove da lista de suporte se estava em cima de um personagem
-        if (obj instanceof FallingObject fo) {
-            Point2D oldPosBelow = obj.getPosition().plus(Direction.DOWN.asVector());
-            GameObject oldSupporter = getGameObject(oldPosBelow);
-            if (oldSupporter instanceof GameCharacter gc)
-                gc.removeSupportedObject(fo);
-        }
-
         // Atualiza Grid e GUI
         removeObject(obj);
         obj.setPosition(newPos);
         addObject(obj);
     }
 
-    // Lógica de sair do nível (Movida do MovementSystem)
+    // Lógica para sair do nível
     public boolean handleExit() {
         removeObject(currentGameCharacter);
         activeGC.remove(currentGameCharacter);
@@ -235,5 +241,43 @@ public class Room {
         for (GameObject obj : allObjects) {
             obj.update(this);
         }
+    }
+
+    // Lógica de empurrar em cadeia movida do MovementSystem para aqui
+    public void attemptChainPush(Vector2D vector) {
+        Direction dir = Direction.forVector(vector);
+        // Obtém objetos na direção do movimento
+        List<GameObject> lineOfObjects = this.getGrid().allObjectsAboveToSide(getCurrentGameCharacter().getPosition(), dir);
+
+        List<Movable> pushChain = new ArrayList<>();
+        boolean canMove = false;
+
+        for (GameObject obj : lineOfObjects) {
+            if (obj.isFluid()) {
+                // Encontrou espaço vazio, pode empurrar tudo até aqui
+                canMove = true;
+                break;
+            }
+
+            if (obj instanceof Movable p && p.canBePushedBy(getCurrentGameCharacter())) {
+                pushChain.add(p);
+            } else {
+                // Parede ou objeto imóvel
+                break;
+            }
+        }
+        // Executar o empurrão de trás para a frente
+        if (canMove && !pushChain.isEmpty()) {
+            chainPushObjects(vector, pushChain);
+        }
+    }
+
+    public void chainPushObjects(Vector2D vector, List<Movable> pushChain) {
+        for (int i = pushChain.size() - 1; i >= 0; i--) {
+            Movable p = pushChain.get(i);
+            GameObject obj = (GameObject) p;
+            p.push(this, obj.getPosition(), obj.getPosition().plus(vector));
+        }
+        getCurrentGameCharacter().moveSelf(vector, this);
     }
 }

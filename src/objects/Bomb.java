@@ -33,45 +33,54 @@ public class Bomb extends FallingObject implements Movable {
     
     @Override
     public boolean canBePushedBy(GameCharacter character) {
+        return character.canPush(this.getWeight());
+    }
+
+    /**
+     * Tenta empurrar a bomba de uma posição para outra.
+     *
+     * Uma bomba só pode ser empurrada horizontalmente (LEFT ou RIGHT).
+     *
+     * Obtemos o objeto na posição para a qual a bomba está a ser
+     * empurrada e o objeto por baixo da bomba.
+     *
+     * A bomba só pode ser empurrada se o próximo Point2D estiver vazio
+     *
+     * Se o objeto por baixo for um Game Character atualiza a originalY para não explodir
+     *
+     * Por fim move a bomba e devolve true
+     *
+     * @param room a sala respetiva
+     * @param from a posição atual da bomba
+     * @param to a posição de destino para onde a bomba será empurrada
+     * @return "true" se a bomba foi empurrada com sucesso, "false" se não foi
+     */
+    @Override
+    public boolean push(Room room, Point2D from, Point2D to) {
+        Vector2D objMovVector = Vector2D.movementVector(from, to);
+        Direction possibleObjDir = Direction.forVector(objMovVector);
+
+        if (possibleObjDir == Direction.UP || possibleObjDir == Direction.DOWN)
+            return false;
+
+        GameObject objInNextPos = room.getGrid().getAt(to);
+
+        Point2D posObjBelow = from.plus(Direction.DOWN.asVector());
+        GameObject objBelow = room.getGrid().getAt(posObjBelow);
+
+        if (!objInNextPos.isFluid()) return false;
+
+        if (objBelow instanceof GameCharacter)
+            this.originalY = objInNextPos.getPosition().getY();
+
+        room.moveObject(this, to);
+
         return true;
     }
 
     @Override
-    public boolean push(Room room, Point2D from, Point2D to) {
-        // OBTEMOS A DIREÇÃO EM QUE O GAME CHARACTER EMPURROU O GAME OBJECT
-        Vector2D objMovVector = Vector2D.movementVector(from, to);
-        Direction possibleObjDir = Direction.forVector(objMovVector);
-
-        // SE A DIREÇÃO FOR UP OU DOWN DEVOLVE FALSO, POIS UMA BOMBA NÃO PODE SER
-        // EMPURRADA PARA CIMA OU PARA BAIXO
-        if (possibleObjDir == Direction.UP || possibleObjDir == Direction.DOWN)
-            return false;
-
-        // OBTEMOS O OBJETO NA PRÓXIMA POSIÇÃO
-        GameObject objInNextPos = room.getGameObject(to);
-
-        // VERIFICAMOS SE O OBJETO QUE DE MOMENTO SUPORTA A BOMBA É
-        // UM GAME CHARACTER
-        Point2D posObjBelow = from.plus(Direction.DOWN.asVector());
-        GameObject objBelow = room.getGameObject(posObjBelow);
-
-        // SE A BOMBA ESTIVER SUPORTADA POR UM GAME CHARACTER OU A
-        // POSIÇÃO PARA A QUAL ELA VAI SER EMPURRADA SÓ CONTEM ÁGUA
-        if (objInNextPos instanceof Water || objBelow instanceof GameCharacter) {
-            // SE ESTIVER A ESR SUPORTADA POR UM GAME CHARACTER
-            // ATUALIZAMOS A originalY PARA A CAMADA ATUAL
-            if (objBelow instanceof GameCharacter)
-                this.originalY = objInNextPos.getPosition().getY();
-            // DEPOIS MOVEMOS O OBJETO PARA ONDE ESTÁ A SER EMPURRADO
-            room.moveObject(this, to);
-            return true;
-        }
-        return false;
-    }
-
-    @Override
     public void onLanded(Room room, Point2D landedOn) {
-        GameObject objBelow = room.getGameObject(landedOn);
+        GameObject objBelow = room.getGrid().getAt(landedOn);
         if (this.getPosition().getY() != this.originalY) {
             if (!(objBelow instanceof GameCharacter)) {
                 room.removeObject(this);

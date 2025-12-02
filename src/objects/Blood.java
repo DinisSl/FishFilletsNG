@@ -24,4 +24,9 @@ public class Blood extends GameObject {
     public int getLayer() {
         return super.LAYER_EFFECTS;
     }
+
+    @Override
+    public boolean isFluid() {
+        return true;
+    }
 }

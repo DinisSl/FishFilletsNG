@@ -19,12 +19,10 @@ public class Stone extends FallingObject implements Movable {
 
     @Override
     public void onLanded(Room room, Point2D landedOn) {
-        GameObject destObj = room.getGameObject(landedOn);
-        List<GameCharacter> toKill = new ArrayList<>();
-        if (destObj instanceof SmallFish sf) {
-            toKill.add(sf);
-            room.killGameCharacter(toKill, false);
-        }
+        GameObject destObj = room.getGrid().getAt(landedOn);
+
+        if (destObj.canBeCrushed())
+            destObj.onCrushed(room);
     }
 
 //   ImageTile interface
@@ -40,14 +38,14 @@ public class Stone extends FallingObject implements Movable {
 
     @Override
     public boolean canBePushedBy(GameCharacter character) {
-        return character instanceof BigFish;
+        return character.canPush(this.getWeight());
     }
 
     @Override
     public boolean push(Room room, Point2D from, Point2D to) {
         GameCharacter gc = room.getCurrentGameCharacter();
-        GameObject objInNextPos = room.getGameObject(to);
-        if (objInNextPos instanceof Water && gc instanceof BigFish) {
+        GameObject objInNextPos = room.getGrid().getAt(to);
+        if (objInNextPos.isFluid() && gc.canPush(Weight.HEAVY)) {
             room.moveObject(this, to);
             return true;
         }

@@ -24,4 +24,9 @@ public class Water extends GameObject {
     public boolean blocksMovement(GameObject gameCharacter) {
         return false;
     }
+
+    @Override
+    public boolean isFluid() {
+        return true;
+    }
 }

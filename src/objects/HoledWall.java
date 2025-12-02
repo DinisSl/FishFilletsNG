@@ -22,7 +22,11 @@ public class HoledWall extends GameObject {
     // Se o GameCharacter for o SmallFish não bloqueia o movimento se for o BigFish bloqueia
     @Override
     public boolean blocksMovement(GameObject gameCharacter) {
-        return !(gameCharacter instanceof SmallFish || gameCharacter instanceof Cup);
+        return !(gameCharacter.fitsInHoles());
     }
 
+    @Override
+    public boolean hasHole() {
+        return true;
+    }
 }

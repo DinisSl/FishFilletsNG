@@ -1,5 +1,5 @@
 package objects.management;
 
 public enum Weight {
-    HEAVY, LIGHT;
+    HEAVY, LIGHT
 }

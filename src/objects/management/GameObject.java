@@ -9,7 +9,8 @@ public abstract class GameObject implements ImageTile {
     public final int LAYER_WATER = 0;
     public final int LAYER_EFFECTS = 1;
     public final int LAYER_OBSTACLES = 2;
-    public final int LAYER_GAME_CHARACTER = 3;
+    public final int LAYER_ITEMS = 3;
+    public final int LAYER_GAME_CHARACTER = 4;
 
     private Point2D position;
 
@@ -33,7 +34,7 @@ public abstract class GameObject implements ImageTile {
             case 'A' -> new Anchor(point);
             case 'L' -> new Trunk(point);
 
-            default -> throw new IllegalArgumentException("Character inválido: " + character + "na posição " + point);
+            default -> throw new IllegalArgumentException("Character inválido: " + character + " na posição " + point);
         };
     }
 
@@ -57,5 +58,27 @@ public abstract class GameObject implements ImageTile {
     GameCharacter cada vez que bate num GameObject*/
     public abstract boolean blocksMovement(GameObject gameCharacter);
 
-    public void update(Room room) {}
+    public void update(Room room) { return; }
+
+    public boolean isFluid() {
+        return false;
+    }
+
+    public boolean isPushable(GameCharacter gc) {
+        return false;
+    }
+
+    public void onCrushed(Room room) {}
+
+    public boolean canBeCrushed() {
+        return false;
+    }
+
+    public boolean fitsInHoles() {
+        return false;
+    }
+
+    public boolean hasHole() {
+        return false;
+    }
 }

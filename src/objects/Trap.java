@@ -26,34 +26,47 @@ public class Trap extends FallingObject implements Deadly, Movable {
     public boolean blocksMovement(GameObject gameCharacter) {
         // Pequeno passa não bloqueia
         // Grande bloqueia e morre (morte tratada no engine
-        return (gameCharacter instanceof BigFish);
+        return !gameCharacter.fitsInHoles();
     }
 
     @Override
-    public void onLanded(Room room, Point2D posBelow) {
-        // Não acontece nada
+    public void onLanded(Room room, Point2D landedOn) {
+        GameObject destObj = room.getGrid().getAt(landedOn);
+
+        if (destObj.fitsInHoles())
+            return;
+
+        if (destObj.canBeCrushed())
+            destObj.onCrushed(room);
     }
 
     @Override
     public void onCharacterContact(GameCharacter character, Room room) {
-        if (character instanceof BigFish)
+        if (!character.fitsInHoles())
             room.killGameCharacter(List.of(character), false);
     }
 
     @Override
     public boolean canBePushedBy(GameCharacter character) {
-        return character instanceof BigFish;
+        return character.canPush(this.getWeight());
     }
 
     @Override
     public boolean push(Room room, Point2D from, Point2D to) {
         GameCharacter gc = room.getCurrentGameCharacter();
-        GameObject objInNextPos = room.getGameObject(to);
-        if (objInNextPos instanceof Water && gc instanceof BigFish) {
+        GameObject objInNextPos = room.getGrid().getAt(to);
+        if (objInNextPos.isFluid() && gc.canPush(Weight.HEAVY)) {
             room.moveObject(this, to);
             return true;
         }
         return false;
+    }
+
+    @Override
+    protected boolean canFallThrough(GameObject objBelow) {
+        if (super.canFallThrough(objBelow)) return true;
+
+        return objBelow.fitsInHoles();
     }
 
     @Override
