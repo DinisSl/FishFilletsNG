@@ -1,10 +1,10 @@
 package objects;
 
-import interfaces.Fluid;
+import interfaces.NonBlocking;
 import objects.management.GameObject;
 import pt.iscte.poo.utils.Point2D;
 
-public class Blood extends GameObject implements Fluid {
+public class Blood extends GameObject implements NonBlocking {
 
     public Blood(Point2D p) {
         super(p);

@@ -1,6 +1,6 @@
 package objects;
 
-import interfaces.Fluid;
+import interfaces.NonBlocking;
 import interfaces.Movable;
 import objects.management.FallingObject;
 import objects.management.GameCharacter;
@@ -71,7 +71,7 @@ public class Bomb extends FallingObject implements Movable {
         Point2D posObjBelow = from.plus(Direction.DOWN.asVector());
         GameObject objBelow = room.getGrid().getAt(posObjBelow);
 
-        if (!(objInNextPos instanceof Fluid)) return false;
+        if (!(objInNextPos instanceof NonBlocking)) return false;
 
         if (objBelow instanceof GameCharacter)
             this.originalY = objInNextPos.getPosition().getY();

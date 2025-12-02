@@ -31,9 +31,9 @@ public class SmallFish extends GameCharacter implements Destroyable, FitsInHole 
         GameObject nextObj = room.getGrid().getAt(nextPos);
 
         // 1. Verificar Saída
-        if (nextObj == null) {
+        if (nextObj == null)
             return room.handleExit();
-        }
+
 
         // 2. Verificar se está bloqueado e interagir
         if (nextObj.blocksMovement(this)) {

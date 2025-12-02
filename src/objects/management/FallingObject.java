@@ -97,7 +97,7 @@ public abstract class FallingObject extends GameObject implements Movable {
     }
 
     protected boolean canFallThrough(GameObject objBelow) {
-        return objBelow instanceof Fluid;
+        return objBelow instanceof NonBlocking;
     }
 
     @Override

@@ -1,7 +1,7 @@
 package objects.management;
 
 import interfaces.Deadly;
-import interfaces.Fluid;
+import interfaces.NonBlocking;
 import interfaces.Movable;
 import pt.iscte.poo.game.Room;
 import pt.iscte.poo.utils.Direction;
@@ -92,10 +92,6 @@ public abstract class GameCharacter extends GameObject {
         this.supportedObjects.add(fo);
     }
 
-    public void removeSupportedObject(FallingObject fo) {
-        this.supportedObjects.remove(fo);
-    }
-
     public void clearSupportedObjects() {
         this.supportedObjects.clear();
     }
@@ -145,7 +141,6 @@ public abstract class GameCharacter extends GameObject {
         return this.currentDirection;
     }
 
-    // Lógica de empurrar em cadeia movida do MovementSystem para aqui
     public void attemptChainPush(Vector2D vector, Room room) {
         Direction dir = Direction.forVector(vector);
         // Obtém objetos na direção do movimento
@@ -155,7 +150,7 @@ public abstract class GameCharacter extends GameObject {
         boolean canMove = false;
 
         for (GameObject obj : lineOfObjects) {
-            if (obj instanceof Fluid) {
+            if (obj instanceof NonBlocking) {
                 // Encontrou espaço vazio, pode empurrar tudo até aqui
                 canMove = true;
                 break;

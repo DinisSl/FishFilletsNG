@@ -1,7 +1,7 @@
 package objects;
 
 import interfaces.Destroyable;
-import interfaces.Fluid;
+import interfaces.NonBlocking;
 import interfaces.Movable;
 import objects.management.FallingObject;
 import objects.management.GameCharacter;
@@ -60,7 +60,7 @@ public class Anchor extends FallingObject implements Movable {
         if (nextDir == Direction.UP || nextDir == Direction.DOWN)
             return false;
 
-        if (objInNextPos instanceof Fluid && gc.canPush(Weight.HEAVY) && !this.pushedOnce) {
+        if (objInNextPos instanceof NonBlocking && gc.canPush(Weight.HEAVY) && !this.pushedOnce) {
             room.moveObject(this, to);
             this.pushedOnce = true;
             return true;

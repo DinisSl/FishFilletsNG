@@ -59,7 +59,7 @@ public class Trap extends FallingObject implements Deadly, Movable {
     public boolean push(Room room, Point2D from, Point2D to) {
         GameCharacter gc = room.getCurrentGameCharacter();
         GameObject objInNextPos = room.getGrid().getAt(to);
-        if (objInNextPos instanceof Fluid && gc.canPush(Weight.HEAVY)) {
+        if (objInNextPos instanceof NonBlocking && gc.canPush(Weight.HEAVY)) {
             room.moveObject(this, to);
             return true;
         }

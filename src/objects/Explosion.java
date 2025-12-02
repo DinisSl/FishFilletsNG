@@ -1,11 +1,11 @@
 package objects;
 
-import interfaces.Fluid;
+import interfaces.NonBlocking;
 import objects.management.GameObject;
 import pt.iscte.poo.game.Room;
 import pt.iscte.poo.utils.Point2D;
 
-public class Explosion extends GameObject implements Fluid {
+public class Explosion extends GameObject implements NonBlocking {
     long startTime;
 
     public Explosion(Point2D p, long startTime) {

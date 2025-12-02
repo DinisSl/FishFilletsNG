@@ -1,7 +1,7 @@
 package objects;
 
 import interfaces.FitsInHole;
-import interfaces.Fluid;
+import interfaces.NonBlocking;
 import interfaces.Movable;
 import objects.management.FallingObject;
 import objects.management.GameCharacter;
@@ -40,7 +40,7 @@ public class Cup extends FallingObject implements Movable, FitsInHole {
     @Override
     public boolean push(Room room, Point2D from, Point2D to) {
         GameObject objInNextPos = room.getGrid().getAt(to);
-        if (objInNextPos instanceof Fluid) {
+        if (objInNextPos instanceof NonBlocking) {
             room.moveObject(this, to);
             return true;
         }

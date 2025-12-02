@@ -1,10 +1,10 @@
 package objects;
 
-import interfaces.Fluid;
+import interfaces.NonBlocking;
 import objects.management.GameObject;
 import pt.iscte.poo.utils.Point2D;
 
-public class Water extends GameObject implements Fluid {
+public class Water extends GameObject implements NonBlocking {
 
 	public Water(Point2D p) {
 		super(p);
