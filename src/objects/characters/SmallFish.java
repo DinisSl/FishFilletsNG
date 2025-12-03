@@ -1,9 +1,11 @@
-package objects;
+package objects.characters;
 
 import interfaces.Destroyable;
 import interfaces.FitsInHole;
 import interfaces.Movable;
-import objects.management.*;
+import objects.attributes.Size;
+import objects.attributes.Weight;
+import objects.base.*;
 import pt.iscte.poo.game.Room;
 import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;
@@ -62,10 +64,6 @@ public class SmallFish extends GameCharacter implements Destroyable, FitsInHole 
         return false;
     }
 
-    @Override
-    public boolean fitsInHoles() {
-        return true;
-    }
 
     @Override
     public void onDestroyed(Room room) {
@@ -73,7 +71,7 @@ public class SmallFish extends GameCharacter implements Destroyable, FitsInHole 
     }
 
     @Override
-    public boolean canBeDestroyedBy(FallingObject object) {
+    public boolean canBeDestroyedBy(SinkingObject object) {
         return object.getWeight() == Weight.HEAVY;
     }
 

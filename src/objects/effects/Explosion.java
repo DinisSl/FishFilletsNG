@@ -1,7 +1,7 @@
-package objects;
+package objects.effects;
 
 import interfaces.NonBlocking;
-import objects.management.GameObject;
+import objects.base.GameObject;
 import pt.iscte.poo.game.Room;
 import pt.iscte.poo.utils.Point2D;
 
@@ -13,7 +13,6 @@ public class Explosion extends GameObject implements NonBlocking {
         this.startTime = startTime;
     }
 
-    // --- NOVA IMPLEMENTAÇÃO ---
     @Override
     public void update(Room room) {
         long currTime = System.currentTimeMillis();

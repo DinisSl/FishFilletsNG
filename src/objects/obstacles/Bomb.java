@@ -1,21 +1,22 @@
-package objects;
+package objects.obstacles;
 
 import interfaces.NonBlocking;
 import interfaces.Movable;
-import objects.management.FallingObject;
-import objects.management.GameCharacter;
-import objects.management.GameObject;
-import objects.management.Weight;
+import objects.base.SinkingObject;
+import objects.base.GameCharacter;
+import objects.base.GameObject;
+import objects.attributes.Weight;
+import objects.effects.Explosion;
+import objects.enviroment.Water;
 import pt.iscte.poo.game.Room;
 import pt.iscte.poo.gui.ImageGUI;
 import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;
-import pt.iscte.poo.utils.Vector2D;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Bomb extends FallingObject implements Movable {
+public class Bomb extends SinkingObject implements Movable {
     private int originalY;
 
 

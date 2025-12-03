@@ -1,10 +1,10 @@
-package objects;
+package objects.characters;
 
 import interfaces.Movable;
-import objects.management.GameCharacter;
-import objects.management.GameObject;
-import objects.management.Size;
-import objects.management.Weight;
+import objects.base.GameCharacter;
+import objects.base.GameObject;
+import objects.attributes.Size;
+import objects.attributes.Weight;
 import pt.iscte.poo.game.Room;
 import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;

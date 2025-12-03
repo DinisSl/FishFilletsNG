@@ -1,8 +1,13 @@
-package objects.management;
+package objects.base;
 
 import interfaces.LoadBearer;
 import interfaces.Movable;
-import objects.*;
+import objects.attributes.Weight;
+import objects.characters.BigFish;
+import objects.characters.SmallFish;
+import objects.enviroment.HoledWall;
+import objects.enviroment.Wall;
+import objects.obstacles.*;
 import pt.iscte.poo.game.Room;
 import pt.iscte.poo.gui.ImageTile;
 import pt.iscte.poo.utils.Direction;
@@ -23,7 +28,7 @@ public abstract class GameObject implements ImageTile {
 
     /*Set para guardar os Falling Objects que o Game Character está
     a suportar, utilizamos um set, pois por defeito não permite duplicados*/
-    private final Set<FallingObject> supportedObjects;
+    private final Set<Movable> supportedObjects;
 
     public GameObject(Point2D position) {
         this.position = position;
@@ -76,8 +81,8 @@ public abstract class GameObject implements ImageTile {
     /*-----------------------------------------------------------
     MÉTODOS PARA MANIPULAR O SET
     -----------------------------------------------------------*/
-    public void addSupportedObject(FallingObject fo) {
-        this.supportedObjects.add(fo);
+    public void addSupportedObject(Movable mo) {
+        this.supportedObjects.add(mo);
     }
 
     public void clearSupportedObjects() {
@@ -114,8 +119,8 @@ public abstract class GameObject implements ImageTile {
                 .allObjectsAboveToSide(this.getPosition(), Direction.UP);
 
         for (GameObject obj : objectsAbove) {
-            if (obj instanceof FallingObject fallingObject) {
-                addSupportedObject(fallingObject);
+            if (obj instanceof Movable movable) {
+                addSupportedObject(movable);
             } else {
                 // Interrompe a análise ao atingir uma parede ou teto
                 break;
@@ -147,20 +152,18 @@ public abstract class GameObject implements ImageTile {
      * e devolve-os em forma de um int[]
      *
      * @return Devolve um array de inteiros.
-     * Posição 0 - Falling Objects Pesados
-     * Posição 1 - Falling Objects Leves
+     * Posição [0] - Falling Objects Pesados
+     * Posição [1] - Falling Objects Leves
      */
     private int[] checkSupportOverload() {
         int heavyFO = 0;
         int lightFO = 0;
 
-        for (FallingObject fo : this.supportedObjects) {
-            if (fo instanceof Movable movable) {
-                if (movable.getWeight() == Weight.HEAVY) {
-                    heavyFO++;
-                } else if (movable.getWeight() == Weight.LIGHT) {
-                    lightFO++;
-                }
+        for (Movable fo : this.supportedObjects) {
+            if (fo.getWeight() == Weight.HEAVY) {
+                heavyFO++;
+            } else if (fo.getWeight() == Weight.LIGHT) {
+                lightFO++;
             }
         }
 

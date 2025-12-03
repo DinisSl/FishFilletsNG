@@ -1,8 +1,8 @@
-package objects;
+package objects.enviroment;
 
 import interfaces.FitsInHole;
 import interfaces.Passable;
-import objects.management.GameObject;
+import objects.base.GameObject;
 import pt.iscte.poo.utils.Point2D;
 
 public class HoledWall extends GameObject implements Passable {
@@ -21,14 +21,9 @@ public class HoledWall extends GameObject implements Passable {
         return super.LAYER_OBSTACLES;
     }
 
-    // Se o GameCharacter for o SmallFish não bloqueia o movimento se for o BigFish bloqueia
+    // Se o GameCharacter couber num buraco não bloqueia o movimento
     @Override
     public boolean blocksMovement(GameObject gameCharacter) {
         return !(gameCharacter instanceof FitsInHole);
-    }
-
-    @Override
-    public boolean canPass(GameObject obj) {
-        return false;
     }
 }

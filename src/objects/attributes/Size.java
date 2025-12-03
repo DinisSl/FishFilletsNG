@@ -1,4 +1,4 @@
-package objects.management;
+package objects.attributes;
 
 public enum Size {
     SMALL, BIG

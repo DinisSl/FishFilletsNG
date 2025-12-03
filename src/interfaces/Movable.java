@@ -1,7 +1,7 @@
 package interfaces;
 
-import objects.management.GameCharacter;
-import objects.management.Weight;
+import objects.base.GameCharacter;
+import objects.attributes.Weight;
 import pt.iscte.poo.game.Room;
 import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;

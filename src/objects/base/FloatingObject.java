@@ -1,4 +1,4 @@
-package objects.management;
+package objects.base;
 
 import interfaces.Movable;
 import interfaces.NonBlocking;

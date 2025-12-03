@@ -1,9 +1,9 @@
 package interfaces;
 
-import objects.management.FallingObject;
+import objects.base.SinkingObject;
 import pt.iscte.poo.game.Room;
 
 public interface Destroyable {
     void onDestroyed(Room room);
-    boolean canBeDestroyedBy(FallingObject object);
+    boolean canBeDestroyedBy(SinkingObject object);
 }

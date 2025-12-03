@@ -1,9 +1,11 @@
-package objects;
+package objects.obstacles;
 
 import interfaces.LoadBearer;
 import interfaces.Movable;
 import interfaces.NonBlocking;
-import objects.management.*;
+import objects.attributes.Size;
+import objects.attributes.Weight;
+import objects.base.*;
 import pt.iscte.poo.game.Room;
 import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;

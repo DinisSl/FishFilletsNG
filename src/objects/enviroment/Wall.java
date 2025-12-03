@@ -1,7 +1,6 @@
-package objects;
+package objects.enviroment;
 
-import objects.management.GameCharacter;
-import objects.management.GameObject;
+import objects.base.GameObject;
 import pt.iscte.poo.utils.Point2D;
 
 public class Wall extends GameObject {

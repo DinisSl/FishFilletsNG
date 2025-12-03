@@ -1,14 +1,14 @@
-package objects.management;
+package objects.base;
 
 import interfaces.*;
 import pt.iscte.poo.game.Room;
 import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;
 
-public abstract class FallingObject extends GameObject implements Movable {
+public abstract class SinkingObject extends GameObject implements Movable {
     private boolean falling;
 
-    public FallingObject(Point2D point) {
+    public SinkingObject(Point2D point) {
         super(point);
         this.falling = false;
     }

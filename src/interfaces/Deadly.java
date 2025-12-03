@@ -1,6 +1,6 @@
 package interfaces;
 
-import objects.management.GameCharacter;
+import objects.base.GameCharacter;
 import pt.iscte.poo.game.Room;
 
 public interface Deadly {

@@ -5,8 +5,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import objects.management.GameCharacter;
-import objects.management.GameObject;
+import objects.base.GameCharacter;
+import objects.base.GameObject;
 import pt.iscte.poo.gui.ImageGUI;
 import pt.iscte.poo.observer.Observed;
 import pt.iscte.poo.observer.Observer;
@@ -122,12 +122,11 @@ public class GameEngine implements Observer {
 
     private void processTick() {
         // Obter todos os objetos do jogo (Bomba, Peixe, Explosão, etc)
-        // Usamos uma cópia da lista para evitar erros se um objeto se remover a si próprio durante o update
         List<GameObject> allObjects = this.currentRoom.getGrid().listAllObjectsOfType(GameObject.class);
 
-        for (GameObject obj : allObjects) {
+        for (GameObject obj : allObjects)
             obj.update(currentRoom);
-        }
+
         this.lastTickProcessed++;
     }
 

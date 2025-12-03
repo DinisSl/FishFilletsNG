@@ -1,10 +1,10 @@
-package objects;
+package objects.obstacles;
 
 import interfaces.Destroyable;
 import interfaces.Movable;
-import objects.management.FallingObject;
-import objects.management.GameObject;
-import objects.management.Weight;
+import objects.base.SinkingObject;
+import objects.base.GameObject;
+import objects.attributes.Weight;
 import pt.iscte.poo.game.Room;
 import pt.iscte.poo.utils.Point2D;
 
@@ -36,7 +36,7 @@ public class Trunk extends GameObject implements Destroyable {
     }
 
     @Override
-    public boolean canBeDestroyedBy(FallingObject object) {
+    public boolean canBeDestroyedBy(SinkingObject object) {
         if (object instanceof Movable movable)
             return movable.getWeight() == Weight.HEAVY;
         return false;

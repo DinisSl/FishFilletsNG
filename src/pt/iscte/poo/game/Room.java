@@ -1,8 +1,8 @@
 package pt.iscte.poo.game;
 
-import objects.Blood;
-import objects.Water;
-import objects.management.*;
+import objects.effects.Blood;
+import objects.enviroment.Water;
+import objects.base.*;
 import pt.iscte.poo.gui.ImageGUI;
 import pt.iscte.poo.utils.Point2D;
 
@@ -124,15 +124,6 @@ public class Room {
         }
     }
 
-    public void restartRoom() {
-        // Limpa o GUI do nível atual
-        ImageGUI.getInstance().clearImages();
-        // Limpa a lista de Game Characters ativos
-        this.activeGC.clear();
-        // Dá load à Room de volta para o estado passado pelo ficheiro
-        loadRoom();
-    }
-
     /**
      * Processa uma posição no mapa.
      *
@@ -157,6 +148,15 @@ public class Room {
         this.addObject(gameObject);
 
         if (gameObject instanceof GameCharacter) this.activeGC.add((GameCharacter) gameObject);
+    }
+
+    public void restartRoom() {
+        // Limpa o GUI do nível atual
+        ImageGUI.getInstance().clearImages();
+        // Limpa a lista de Game Characters ativos
+        this.activeGC.clear();
+        // Dá load à Room de volta para o estado passado pelo ficheiro
+        loadRoom();
     }
 
     /*-----------------------------------------------------------

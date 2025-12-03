@@ -1,17 +1,17 @@
-package objects;
+package objects.obstacles;
 
 import interfaces.*;
-import objects.management.FallingObject;
-import objects.management.GameCharacter;
-import objects.management.GameObject;
-import objects.management.Weight;
+import objects.base.SinkingObject;
+import objects.base.GameCharacter;
+import objects.base.GameObject;
+import objects.attributes.Weight;
 import pt.iscte.poo.game.Room;
 import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;
 
 import java.util.List;
 
-public class Trap extends FallingObject implements Deadly, Movable {
+public class Trap extends SinkingObject implements Deadly, Movable {
 
     public Trap(Point2D p) {
         super(p);

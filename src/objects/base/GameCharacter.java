@@ -1,9 +1,11 @@
-package objects.management;
+package objects.base;
 
 import interfaces.Deadly;
 import interfaces.LoadBearer;
 import interfaces.NonBlocking;
 import interfaces.Movable;
+import objects.attributes.Size;
+import objects.attributes.Weight;
 import pt.iscte.poo.game.Room;
 import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;
@@ -44,7 +46,7 @@ public abstract class GameCharacter extends GameObject implements LoadBearer {
         List<GameObject> objsAbove = room.getGrid().allObjectsAboveToSide(this.getPosition(), Direction.UP);
 
         for (GameObject go : objsAbove) {
-            if (go instanceof FallingObject fo) {
+            if (go instanceof SinkingObject fo) {
                 if (this instanceof NonBlocking) continue;
                 addSupportedObject(fo);
             } else {

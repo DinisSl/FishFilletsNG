@@ -1,6 +1,6 @@
 package pt.iscte.poo.game;
 
-import objects.management.GameObject;
+import objects.base.GameObject;
 import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;
 
