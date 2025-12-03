@@ -27,7 +27,7 @@ public class Anchor extends FallingObject implements Movable {
     }
 
     @Override
-    public void onLanded(Room room, Point2D posBelow) {
+    public void onFinishedMovement(Room room, Point2D posBelow) {
         GameObject destObj = room.getGrid().getAt(posBelow);
 
         if (destObj instanceof Destroyable d) {
@@ -46,7 +46,7 @@ public class Anchor extends FallingObject implements Movable {
 
 
     @Override
-    public boolean canBePushedBy(GameCharacter character) {
+    public boolean canBePushedBy(GameCharacter character, Direction direction) {
         return character.canPush(this.getWeight()) && !this.pushedOnce;
     }
 

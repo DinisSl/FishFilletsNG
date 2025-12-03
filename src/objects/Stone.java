@@ -8,6 +8,7 @@ import objects.management.GameCharacter;
 import objects.management.GameObject;
 import objects.management.Weight;
 import pt.iscte.poo.game.Room;
+import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;
 
 public class Stone extends FallingObject implements Movable {
@@ -17,7 +18,7 @@ public class Stone extends FallingObject implements Movable {
     }
 
     @Override
-    public void onLanded(Room room, Point2D landedOn) {
+    public void onFinishedMovement(Room room, Point2D landedOn) {
         GameObject destObj = room.getGrid().getAt(landedOn);
 
         if (destObj instanceof Destroyable d) {
@@ -41,7 +42,7 @@ public class Stone extends FallingObject implements Movable {
     }
 
     @Override
-    public boolean canBePushedBy(GameCharacter character) {
+    public boolean canBePushedBy(GameCharacter character, Direction direction) {
         return character.canPush(this.getWeight());
     }
 

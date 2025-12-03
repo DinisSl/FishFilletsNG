@@ -1,9 +1,15 @@
 package objects.management;
 
+import interfaces.Movable;
 import objects.*;
 import pt.iscte.poo.game.Room;
 import pt.iscte.poo.gui.ImageTile;
+import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public abstract class GameObject implements ImageTile {
     public final int LAYER_WATER = 0;
@@ -14,8 +20,13 @@ public abstract class GameObject implements ImageTile {
 
     private Point2D position;
 
+    /*Set para guardar os Falling Objects que o Game Character está
+    a suportar, utilizamos um set, pois por defeito não permite duplicados*/
+    private final Set<FallingObject> supportedObjects;
+
     public GameObject(Point2D position) {
         this.position = position;
+        this.supportedObjects = new HashSet<>();
     }
 
     // Metodo estático que devolve um GameObject passando um a letra do objeto como um char
@@ -32,7 +43,8 @@ public abstract class GameObject implements ImageTile {
             case 'T' -> new Trap(point);
             case 'C' -> new Cup(point);
             case 'A' -> new Anchor(point);
-            case 'L' -> new Trunk(point);
+            case 'Y' -> new Trunk(point);
+            case 'Q' -> new Buoy(point);
 
             default -> throw new IllegalArgumentException("Character inválido: " + character + " na posição " + point);
         };
@@ -55,6 +67,37 @@ public abstract class GameObject implements ImageTile {
     GameCharacter cada vez que bate num GameObject*/
     public abstract boolean blocksMovement(GameObject gameCharacter);
 
+    /*Metodo chamado no Game Engine a cada tick para lidar
+    com o comportamento de todos os objetos, por defeito não
+    faz nada*/
     public void update(Room room) {}
+
+    /*-----------------------------------------------------------
+    MÉTODOS PARA MANIPULAR O SET
+    -----------------------------------------------------------*/
+    public void addSupportedObject(FallingObject fo) {
+        this.supportedObjects.add(fo);
+    }
+
+    public void clearSupportedObjects() {
+        this.supportedObjects.clear();
+    }
+
+    public int[] checkSupportOverload(Room room) {
+        int heavyFO = 0;
+        int lightFO = 0;
+
+        for (FallingObject fo : this.supportedObjects) {
+            if (fo instanceof Movable movable) {
+                if (movable.getWeight() == Weight.HEAVY) {
+                    heavyFO++;
+                } else if (movable.getWeight() == Weight.LIGHT) {
+                    lightFO++;
+                }
+            }
+        }
+
+        return new int[] {heavyFO, lightFO};
+    }
 
 }

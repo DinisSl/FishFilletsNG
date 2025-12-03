@@ -63,4 +63,12 @@ public enum Direction implements Serializable {
 				return d;
 		throw new IllegalArgumentException();	
 	}
+
+    public boolean isHorizontal() {
+        return this == LEFT || this == RIGHT;
+    }
+
+    public boolean isVertical() {
+        return this == UP || this == DOWN;
+    }
 }

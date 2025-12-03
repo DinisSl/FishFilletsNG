@@ -43,8 +43,8 @@ public abstract class FallingObject extends GameObject implements Movable {
     }
 
     private boolean tryFallingIntoBackground(Room room, GameObject objBelow, Point2D posBelow) {
-        if (canFallThrough(objBelow)) {
-            if (!this.isFalling()) onStartFall();
+        if (objBelow instanceof NonBlocking) {
+            if (!this.isMoving()) onStartMovement();
 
             room.moveObject(this, posBelow);
             return true;
@@ -62,10 +62,10 @@ public abstract class FallingObject extends GameObject implements Movable {
 
     private boolean tryDestroyObject(Room room, GameObject objBelow) {
         if (objBelow instanceof Destroyable destroyable) {
-            // Tenta destruir o objeto abaixo (ex: Trunk)
+            // Tenta destruir o objeto abaixo ex. Trunk
             if (destroyable.canBeDestroyedBy(this)) {
                 destroyable.onDestroyed(room);
-                // Nota: O objeto cai no próximo tick, não instantaneamente
+                // O objeto cai no próximo tick, não instantaneamente
             }
             return true;
         }
@@ -74,34 +74,30 @@ public abstract class FallingObject extends GameObject implements Movable {
 
     private void handleLanding(Room room, Point2D posBelow) {
         if (this.falling) {
-            onLanded(room, posBelow);
+            onFinishedMovement(room, posBelow);
             this.falling = false; // Parou de cair
         }
     }
 
-    // GravityAffected interface
+    // Movable interface
     @Override
-    public void onStartFall() {
+    public void onStartMovement() {
         this.falling = true;
     }
 
     @Override
-    public boolean isFalling() {
+    public boolean isMoving() {
         return this.falling;
     }
 
-    // GameObject metodo abstrato da classe abstrata
+    // Metodo abstrato da classe abstrata GameObject
     @Override
     public boolean blocksMovement(GameObject gameCharacter) {
         return true;
     }
 
-    protected boolean canFallThrough(GameObject objBelow) {
-        return objBelow instanceof NonBlocking;
-    }
-
     @Override
     public int getLayer() {
-        return super.LAYER_ITEMS; // para ficar visível por cima
+        return super.LAYER_ITEMS;
     }
 }

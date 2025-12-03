@@ -15,10 +15,6 @@ import java.util.Set;
 
 public abstract class GameCharacter extends GameObject {
 
-    /*Set para guardar os Falling Objects que o Game Character está
-    a suportar, utilizamos um set, pois por defeito não permite duplicados*/
-    private final Set<FallingObject> supportedObjects;
-
     // Serve para guardar o lado para que o peixe está a olhar (RIGHT OU LEFT)
     private Direction currentDirection;
 
@@ -26,7 +22,6 @@ public abstract class GameCharacter extends GameObject {
         super(p);
         // Ele olha inicialmente para a esquerda
         this.currentDirection = Direction.LEFT;
-        this.supportedObjects = new HashSet<>();
     }
 
     // Métodos abstratos que as subclasses (BigFish, SmallFish) devem implementar
@@ -35,6 +30,8 @@ public abstract class GameCharacter extends GameObject {
     public abstract boolean canPush(Weight weight);
 
     public abstract boolean isOverloaded(int heavyFO, int lightFO);
+
+    public abstract Size getSize();
 
     @Override
     public void update(Room room) {
@@ -46,7 +43,7 @@ public abstract class GameCharacter extends GameObject {
 
         for (GameObject go : objsAbove) {
             if (go instanceof FallingObject fo) {
-                if (fo.canFallThrough(this)) continue;
+                if (this instanceof NonBlocking) continue;
                 addSupportedObject(fo);
             } else {
                 // Se encontrar algo que não cai (parede), para de procurar para cima
@@ -55,7 +52,7 @@ public abstract class GameCharacter extends GameObject {
         }
 
         // Verificar se morre com o peso atual
-        checkSupportOverload(room);
+        checkSupportOverloadAndExecute(room);
     }
 
     @Override
@@ -66,34 +63,14 @@ public abstract class GameCharacter extends GameObject {
     /*----------------------------------------------------------------
     VERIFICA SE UM GAME CHARACTER MORRE DEVIDO AOS OBJETOS QUE SUPORTA
     ------------------------------------------------------------------*/
-    public void checkSupportOverload(Room room) {
-        int heavyFO = 0;
-        int lightFO = 0;
-
-        for (FallingObject fo : this.supportedObjects) {
-            if (fo instanceof Movable movable) {
-                if (movable.getWeight() == Weight.HEAVY) {
-                    heavyFO++;
-                } else if (movable.getWeight() == Weight.LIGHT) {
-                    lightFO++;
-                }
-            }
-        }
+    public void checkSupportOverloadAndExecute(Room room) {
+        int[] fallingObjects = super.checkSupportOverload(room);
+        int heavyFO = fallingObjects[0];
+        int lightFO = fallingObjects[1];
 
         if (isOverloaded(heavyFO, lightFO)) {
             room.killGameCharacter(List.of(this), false);
         }
-    }
-
-    /*-----------------------------------------------------------
-    MÉTODOS PARA MANIPULAR O SET
-    -----------------------------------------------------------*/
-    public void addSupportedObject(FallingObject fo) {
-        this.supportedObjects.add(fo);
-    }
-
-    public void clearSupportedObjects() {
-        this.supportedObjects.clear();
     }
 
     /*-----------------------------------------------------------
@@ -122,7 +99,7 @@ public abstract class GameCharacter extends GameObject {
         // Passa o Vector2D para uma Direction
         Direction potentialDir = Direction.forVector(vector);
         // Se a Direction for LEFT ou RIGHT atribui-a ao atributo currentDirection
-        if (potentialDir == Direction.LEFT || potentialDir == Direction.RIGHT)
+        if (potentialDir.isHorizontal())
             this.currentDirection = potentialDir;
     }
 
@@ -142,9 +119,9 @@ public abstract class GameCharacter extends GameObject {
     }
 
     public void attemptChainPush(Vector2D vector, Room room) {
-        Direction dir = Direction.forVector(vector);
+        Direction direction = Direction.forVector(vector);
         // Obtém objetos na direção do movimento
-        List<GameObject> lineOfObjects = room.getGrid().allObjectsAboveToSide(this.getPosition(), dir);
+        List<GameObject> lineOfObjects = room.getGrid().allObjectsAboveToSide(this.getPosition(), direction);
 
         List<Movable> pushChain = new ArrayList<>();
         boolean canMove = false;
@@ -156,7 +133,7 @@ public abstract class GameCharacter extends GameObject {
                 break;
             }
 
-            if (obj instanceof Movable p && p.canBePushedBy(this)) {
+            if (obj instanceof Movable p && p.canBePushedBy(this, direction)) {
                 pushChain.add(p);
             } else {
                 // Parede ou objeto imóvel

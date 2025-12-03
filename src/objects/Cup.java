@@ -8,6 +8,7 @@ import objects.management.GameCharacter;
 import objects.management.GameObject;
 import objects.management.Weight;
 import pt.iscte.poo.game.Room;
+import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;
 
 public class Cup extends FallingObject implements Movable, FitsInHole {
@@ -17,23 +18,12 @@ public class Cup extends FallingObject implements Movable, FitsInHole {
     }
 
     @Override
-    public String getName() {
-        return "cup";
-    }
-
-    @Override
-    public void onLanded(Room room, Point2D posBelow) {
+    public void onFinishedMovement(Room room, Point2D posBelow) {
         // Não acontece nada
     }
 
     @Override
-    public Weight getWeight() {
-        return Weight.LIGHT;
-    }
-
-
-    @Override
-    public boolean canBePushedBy(GameCharacter character) {
+    public boolean canBePushedBy(GameCharacter character, Direction direction) {
         return true;
     }
 
@@ -51,5 +41,15 @@ public class Cup extends FallingObject implements Movable, FitsInHole {
     @Override
     public boolean fitsInHoles() {
         return true;
+    }
+
+    @Override
+    public String getName() {
+        return "cup";
+    }
+
+    @Override
+    public Weight getWeight() {
+        return Weight.LIGHT;
     }
 }

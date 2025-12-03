@@ -3,10 +3,7 @@ package objects;
 import interfaces.Destroyable;
 import interfaces.FitsInHole;
 import interfaces.Movable;
-import objects.management.FallingObject;
-import objects.management.GameCharacter;
-import objects.management.GameObject;
-import objects.management.Weight;
+import objects.management.*;
 import pt.iscte.poo.game.Room;
 import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;
@@ -22,6 +19,11 @@ public class SmallFish extends GameCharacter implements Destroyable, FitsInHole 
 
     public boolean isOverloaded(int heavyFO, int lightFO) {
         return heavyFO > 0 || lightFO > 1;
+    }
+
+    @Override
+    public Size getSize() {
+        return Size.SMALL;
     }
 
     @Override
@@ -43,7 +45,7 @@ public class SmallFish extends GameCharacter implements Destroyable, FitsInHole 
             if (!room.getActiveGC().contains(this)) return false;
 
             // Verificar se pode empurrar (Lógica simples do SmallFish)
-            if (nextObj instanceof Movable m && m.canBePushedBy(this)) {
+            if (nextObj instanceof Movable m && m.canBePushedBy(this, direction)) {
                 Point2D pushTo = nextPos.plus(vector);
                 // Tenta empurrar o objeto. Se conseguir, o peixe move-se atrás.
                 boolean pushed = m.push(room, nextPos, pushTo);

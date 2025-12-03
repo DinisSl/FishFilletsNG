@@ -35,8 +35,11 @@ public class Bomb extends FallingObject implements Movable {
     }
     
     @Override
-    public boolean canBePushedBy(GameCharacter character) {
-        return character.canPush(this.getWeight());
+    public boolean canBePushedBy(GameCharacter character, Direction direction) {
+        if (direction.isHorizontal())
+            return character.canPush(this.getWeight());
+
+        return false;
     }
 
     /**
@@ -60,12 +63,7 @@ public class Bomb extends FallingObject implements Movable {
      */
     @Override
     public boolean push(Room room, Point2D from, Point2D to) {
-        Vector2D objMovVector = Vector2D.movementVector(from, to);
-        Direction possibleObjDir = Direction.forVector(objMovVector);
-
-        if (possibleObjDir == Direction.UP || possibleObjDir == Direction.DOWN)
-            return false;
-
+//        System.out.println("PUSH()");
         GameObject objInNextPos = room.getGrid().getAt(to);
 
         Point2D posObjBelow = from.plus(Direction.DOWN.asVector());
@@ -82,7 +80,7 @@ public class Bomb extends FallingObject implements Movable {
     }
 
     @Override
-    public void onLanded(Room room, Point2D landedOn) {
+    public void onFinishedMovement(Room room, Point2D landedOn) {
         GameObject objBelow = room.getGrid().getAt(landedOn);
         if (this.getPosition().getY() != this.originalY) {
             if (!(objBelow instanceof GameCharacter)) {

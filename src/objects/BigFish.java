@@ -3,6 +3,7 @@ package objects;
 import interfaces.Movable;
 import objects.management.GameCharacter;
 import objects.management.GameObject;
+import objects.management.Size;
 import objects.management.Weight;
 import pt.iscte.poo.game.Room;
 import pt.iscte.poo.utils.Direction;
@@ -19,6 +20,11 @@ public class BigFish extends GameCharacter {
 
     public boolean isOverloaded(int heavyFO, int lightFO) {
         return heavyFO > 1;
+    }
+
+    @Override
+    public Size getSize() {
+        return Size.BIG;
     }
 
     @Override
@@ -52,7 +58,7 @@ public class BigFish extends GameCharacter {
             if (!room.getActiveGC().contains(this)) return false;
 
             if (nextObj instanceof Movable movable) {
-                if (movable.canBePushedBy(this)) {
+                if (movable.canBePushedBy(this, direction)) {
                     attemptChainPush(vector, room);
                 }
             }

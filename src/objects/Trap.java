@@ -6,6 +6,7 @@ import objects.management.GameCharacter;
 import objects.management.GameObject;
 import objects.management.Weight;
 import pt.iscte.poo.game.Room;
+import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;
 
 import java.util.List;
@@ -29,7 +30,7 @@ public class Trap extends FallingObject implements Deadly, Movable {
     }
 
     @Override
-    public void onLanded(Room room, Point2D landedOn) {
+    public void onFinishedMovement(Room room, Point2D landedOn) {
         GameObject destObj = room.getGrid().getAt(landedOn);
 
         if (destObj instanceof FitsInHole)
@@ -51,7 +52,7 @@ public class Trap extends FallingObject implements Deadly, Movable {
     }
 
     @Override
-    public boolean canBePushedBy(GameCharacter character) {
+    public boolean canBePushedBy(GameCharacter character, Direction direction) {
         return character.canPush(this.getWeight());
     }
 
@@ -66,12 +67,12 @@ public class Trap extends FallingObject implements Deadly, Movable {
         return false;
     }
 
-    @Override
-    protected boolean canFallThrough(GameObject objBelow) {
-        if (super.canFallThrough(objBelow)) return true;
-
-        return objBelow instanceof FitsInHole;
-    }
+//    @Override
+//    protected boolean canFallThrough(GameObject objBelow) {
+//        if (objBelow instanceof NonBlocking) return true;
+//
+//        return objBelow instanceof FitsInHole;
+//    }
 
     @Override
     public Weight getWeight() {
