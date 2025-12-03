@@ -1,6 +1,7 @@
 package objects.management;
 
 import interfaces.Deadly;
+import interfaces.LoadBearer;
 import interfaces.NonBlocking;
 import interfaces.Movable;
 import pt.iscte.poo.game.Room;
@@ -9,11 +10,9 @@ import pt.iscte.poo.utils.Point2D;
 import pt.iscte.poo.utils.Vector2D;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-public abstract class GameCharacter extends GameObject {
+public abstract class GameCharacter extends GameObject implements LoadBearer {
 
     // Serve para guardar o lado para que o peixe está a olhar (RIGHT OU LEFT)
     private Direction currentDirection;
@@ -24,15 +23,18 @@ public abstract class GameCharacter extends GameObject {
         this.currentDirection = Direction.LEFT;
     }
 
-    // Métodos abstratos que as subclasses (BigFish, SmallFish) devem implementar
+    /*-----------------------------------------------------------
+    MÉTODOS ABSTRATOS (subclasses devem implementar)
+    -----------------------------------------------------------*/
     public abstract boolean processMovement(Direction direction, Room room);
 
     public abstract boolean canPush(Weight weight);
 
-    public abstract boolean isOverloaded(int heavyFO, int lightFO);
-
     public abstract Size getSize();
 
+    /*-----------------------------------------------------------
+    OVERRIDES (ciclo de vida / objetos em cima)
+    -----------------------------------------------------------*/
     @Override
     public void update(Room room) {
         // Limpar lista antiga de objetos suportados
@@ -52,7 +54,7 @@ public abstract class GameCharacter extends GameObject {
         }
 
         // Verificar se morre com o peso atual
-        checkSupportOverloadAndExecute(room);
+        processLoadBearing(room);
     }
 
     @Override
@@ -60,17 +62,9 @@ public abstract class GameCharacter extends GameObject {
         return super.LAYER_GAME_CHARACTER;
     }
 
-    /*----------------------------------------------------------------
-    VERIFICA SE UM GAME CHARACTER MORRE DEVIDO AOS OBJETOS QUE SUPORTA
-    ------------------------------------------------------------------*/
-    public void checkSupportOverloadAndExecute(Room room) {
-        int[] fallingObjects = super.checkSupportOverload(room);
-        int heavyFO = fallingObjects[0];
-        int lightFO = fallingObjects[1];
-
-        if (isOverloaded(heavyFO, lightFO)) {
-            room.killGameCharacter(List.of(this), false);
-        }
+    @Override
+    public void onOverload(Room room) {
+        room.killGameCharacter(List.of(this), false);
     }
 
     /*-----------------------------------------------------------
@@ -118,6 +112,9 @@ public abstract class GameCharacter extends GameObject {
         return this.currentDirection;
     }
 
+    /*-----------------------------------------------------------
+    LÓGICA DE EMPURRAR (chain push)
+    -----------------------------------------------------------*/
     public void attemptChainPush(Vector2D vector, Room room) {
         Direction direction = Direction.forVector(vector);
         // Obtém objetos na direção do movimento
@@ -152,6 +149,6 @@ public abstract class GameCharacter extends GameObject {
             GameObject obj = (GameObject) p;
             p.push(room, obj.getPosition(), obj.getPosition().plus(vector));
         }
-       this.moveSelf(vector, room);
+        this.moveSelf(vector, room);
     }
 }

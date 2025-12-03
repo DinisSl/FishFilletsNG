@@ -1,5 +1,6 @@
 package objects.management;
 
+import interfaces.LoadBearer;
 import interfaces.Movable;
 import objects.*;
 import pt.iscte.poo.game.Room;
@@ -83,7 +84,73 @@ public abstract class GameObject implements ImageTile {
         this.supportedObjects.clear();
     }
 
-    public int[] checkSupportOverload(Room room) {
+    /*-----------------------------------------------------------
+    MÉTODOS PARA LIDAR COM OS OBJETOS SUPORTADOS
+    -----------------------------------------------------------*/
+    /**
+     * Analisa objetos diretamente acima, calcula o peso e aciona a interface LoadBearer
+     * se o objeto estiver sobrecarregado.
+     *
+     * @param room A sala onde o objeto se encontra.
+     * @return true se o objeto ficou sobrecarregado e foi executada uma ação.
+     */
+    protected boolean processLoadBearing(Room room) {
+        if (!(this instanceof LoadBearer loadBearer)) {
+            return false;
+        }
+
+        updateSupportedLoad(room);
+        return evaluateAndTriggerOverload(room, loadBearer);
+    }
+
+    /**
+     * Limpa o estado anterior e analisa a grelha à procura de novos FallingObjects
+     * que estejam diretamente acima do Game Object.
+     */
+    private void updateSupportedLoad(Room room) {
+        clearSupportedObjects();
+
+        List<GameObject> objectsAbove = room.getGrid()
+                .allObjectsAboveToSide(this.getPosition(), Direction.UP);
+
+        for (GameObject obj : objectsAbove) {
+            if (obj instanceof FallingObject fallingObject) {
+                addSupportedObject(fallingObject);
+            } else {
+                // Interrompe a análise ao atingir uma parede ou teto
+                break;
+            }
+        }
+    }
+
+    /**
+     * Calcula os pesos atuais e aciona a ação de sobrecarga se os limites forem excedidos.
+     *
+     * @param loadBearer A instância da interface para verificar os limites.
+     * @return true se o limite foi excedido e a ação onOverload foi chamada.
+     */
+    private boolean evaluateAndTriggerOverload(Room room, LoadBearer loadBearer) {
+        int[] weights = checkSupportOverload();
+        int heavyWeight = weights[0];
+        int lightWeight = weights[1];
+
+        if (loadBearer.isOverloaded(heavyWeight, lightWeight)) {
+            loadBearer.onOverload(room);
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Conta todos os Falling Objects em cima do Game Object
+     * e devolve-os em forma de um int[]
+     *
+     * @return Devolve um array de inteiros.
+     * Posição 0 - Falling Objects Pesados
+     * Posição 1 - Falling Objects Leves
+     */
+    private int[] checkSupportOverload() {
         int heavyFO = 0;
         int lightFO = 0;
 
