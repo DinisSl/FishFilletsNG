@@ -91,7 +91,5 @@ public class Stone extends SinkingObject {
             // Só permite a criação de um Crab
             hasCrabSpawned = true;
         }
-
-
     }
 }
