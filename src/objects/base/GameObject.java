@@ -26,7 +26,7 @@ public abstract class GameObject implements ImageTile {
 
     private Point2D position;
 
-    /*Set para guardar os Falling Objects que o Game Character está
+    /*Set para guardar os Floating Objects que o Game Character está
     a suportar, utilizamos um set, pois por defeito não permite duplicados*/
     private final Set<Movable> supportedObjects;
 
@@ -109,7 +109,7 @@ public abstract class GameObject implements ImageTile {
     }
 
     /**
-     * Limpa o estado anterior e analisa a grelha à procura de novos FallingObjects
+     * Limpa o estado anterior e analisa a grelha à procura de novos SinkingObjects
      * que estejam diretamente acima do Game Object.
      */
     private void updateSupportedLoad(Room room) {
@@ -148,12 +148,12 @@ public abstract class GameObject implements ImageTile {
     }
 
     /**
-     * Conta todos os Falling Objects em cima do Game Object
+     * Conta todos os Sinking Objects em cima do Game Object
      * e devolve-os em forma de um int[]
      *
      * @return Devolve um array de inteiros.
-     * Posição [0] - Falling Objects Pesados
-     * Posição [1] - Falling Objects Leves
+     * Posição [0] - Sinking Objects Pesados
+     * Posição [1] - Sinking Objects Leves
      */
     private int[] checkSupportOverload() {
         int heavyFO = 0;

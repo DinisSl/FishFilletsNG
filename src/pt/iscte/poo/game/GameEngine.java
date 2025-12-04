@@ -121,7 +121,7 @@ public class GameEngine implements Observer {
     }
 
     private void processTick() {
-        // Obter todos os objetos do jogo (Bomba, Peixe, Explosão, etc)
+        // Obter todos os objetos do jogo (Bomba, BigFish, Parede, etc)
         List<GameObject> allObjects = this.currentRoom.getGrid().listAllObjectsOfType(GameObject.class);
 
         for (GameObject obj : allObjects)

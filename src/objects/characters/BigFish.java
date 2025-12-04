@@ -47,9 +47,8 @@ public class BigFish extends GameCharacter {
         GameObject nextObj = room.getGrid().getAt(nextPos);
 
         // 1. Verify Exit
-        if (nextObj == null) {
+        if (nextObj == null)
             return room.handleExit();
-        }
 
         // 2. Verify blocking / pushing
         if (nextObj.blocksMovement(this)) {
@@ -58,9 +57,9 @@ public class BigFish extends GameCharacter {
             if (!room.getActiveGC().contains(this)) return false;
 
             if (nextObj instanceof Movable movable) {
-                if (movable.canBePushedBy(this, direction)) {
+                if (movable.canBePushedBy(this, direction))
                     attemptChainPush(vector, room);
-                }
+
             }
             return false;
         }
@@ -70,8 +69,7 @@ public class BigFish extends GameCharacter {
         return false;
     }
 
-    // Se o SmallFish bater no BigFish bloqueia se n passa
-    @Override
+    // Se um GameCharacter bater noutro este n pode passar para cima dele    @Override
     public boolean blocksMovement(GameObject gameCharacter) {
         return true;
     }

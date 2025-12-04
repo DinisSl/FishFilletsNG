@@ -7,14 +7,20 @@ import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;
 
 public abstract class FloatingObject extends GameObject implements Movable {
-    private boolean floatingUp;
+    private boolean floating;
 
     public FloatingObject(Point2D point) {
         super(point);
-        this.floatingUp = false;
+        this.floating = false;
     }
 
-
+    /**
+     * É chamado por Room a cada tick de jogo. Verifica o Game Object
+     * por cima do Floating Object que está a cair. Consequentemente
+     * aplica o tipo de comportamento correspondente conforme o Game Object
+     *
+     * @param room A sala onde o objeto se encontra
+     */
     @Override
     public void update(Room room) {
         Point2D currPos = getPosition();
@@ -28,12 +34,12 @@ public abstract class FloatingObject extends GameObject implements Movable {
 
         GameObject objAbove = room.getGrid().getAt(posAbove);
 
-        if (tryFallingIntoBackground(room, objAbove, posAbove)) return;
+        if (tryFloatingIntoBackground(room, objAbove, posAbove)) return;
 
         handleLanding(room, posAbove);
     }
 
-    private boolean tryFallingIntoBackground(Room room, GameObject objAbove, Point2D posAbove) {
+    private boolean tryFloatingIntoBackground(Room room, GameObject objAbove, Point2D posAbove) {
         if (objAbove instanceof NonBlocking) {
             if (!this.isMoving()) onStartMovement();
 
@@ -44,21 +50,21 @@ public abstract class FloatingObject extends GameObject implements Movable {
     }
 
     private void handleLanding(Room room, Point2D posAbove) {
-        if (this.floatingUp) {
+        if (this.floating) {
             onFinishedMovement(room, posAbove);
-            this.floatingUp = false; // Parou de subir
+            this.floating = false; // Parou de subir
         }
     }
 
     // Movable interface
     @Override
     public void onStartMovement() {
-        this.floatingUp = true;
+        this.floating = true;
     }
 
     @Override
     public boolean isMoving() {
-        return this.floatingUp;
+        return this.floating;
     }
 
     // Metodo abstrato da classe abstrata GameObject

@@ -6,19 +6,19 @@ import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;
 
 public abstract class SinkingObject extends GameObject implements Movable {
-    private boolean falling;
+    private boolean sinking;
 
     public SinkingObject(Point2D point) {
         super(point);
-        this.falling = false;
+        this.sinking = false;
     }
 
     /**
      * É chamado por Room a cada tick de jogo. Verifica o Game Object
-     * por baixo do Falling Object que está a cair. Consequentemente
+     * por baixo do Sinking Object que está a cair. Consequentemente
      * aplica o tipo de comportamento correspondente conforme o Game Object
      *
-     * @param room Serve para usar os métodos disponíveis na classe Room
+     * @param room A sala onde o objeto se encontra
      */
     @Override
     public void update(Room room) {
@@ -33,16 +33,16 @@ public abstract class SinkingObject extends GameObject implements Movable {
 
         GameObject objBelow = room.getGrid().getAt(posBelow);
 
-        if (tryFallingIntoBackground(room, objBelow, posBelow)) return;
+        if (trySinkingIntoBackground(room, objBelow, posBelow)) return;
 
-        if (tryFallingIntoHole(room, objBelow, posBelow)) return;
+        if (trySinkingIntoHole(room, objBelow, posBelow)) return;
 
         if (tryDestroyObject(room, objBelow)) return;
 
         handleLanding(room, posBelow);
     }
 
-    private boolean tryFallingIntoBackground(Room room, GameObject objBelow, Point2D posBelow) {
+    private boolean trySinkingIntoBackground(Room room, GameObject objBelow, Point2D posBelow) {
         if (objBelow instanceof NonBlocking) {
             if (!this.isMoving()) onStartMovement();
 
@@ -52,7 +52,7 @@ public abstract class SinkingObject extends GameObject implements Movable {
         return false;
     }
 
-    private boolean tryFallingIntoHole(Room room, GameObject objBelow, Point2D posBelow) {
+    private boolean trySinkingIntoHole(Room room, GameObject objBelow, Point2D posBelow) {
         if (this instanceof FitsInHole && objBelow instanceof Passable) {
             room.moveObject(this, posBelow);
             return true;
@@ -73,21 +73,21 @@ public abstract class SinkingObject extends GameObject implements Movable {
     }
 
     private void handleLanding(Room room, Point2D posBelow) {
-        if (this.falling) {
+        if (this.sinking) {
             onFinishedMovement(room, posBelow);
-            this.falling = false; // Parou de cair
+            this.sinking = false; // Parou de cair
         }
     }
 
     // Movable interface
     @Override
     public void onStartMovement() {
-        this.falling = true;
+        this.sinking = true;
     }
 
     @Override
     public boolean isMoving() {
-        return this.falling;
+        return this.sinking;
     }
 
     // Metodo abstrato da classe abstrata GameObject

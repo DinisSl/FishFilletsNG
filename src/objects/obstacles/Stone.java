@@ -21,12 +21,13 @@ public class Stone extends SinkingObject implements Movable {
     public void onFinishedMovement(Room room, Point2D landedOn) {
         GameObject destObj = room.getGrid().getAt(landedOn);
 
-        if (destObj instanceof Destroyable d) {
-            // 1. Check if "this" falling object is heavy enough to destroy "d"
-            if (d.canBeDestroyedBy(this)) {
-                // 2. Perform the destruction
-                d.onDestroyed(room);
-            }
+        if (destObj instanceof Destroyable destroyable) {
+            /*Verifica se este Sinking Object é pesado o suficiente para
+            destruir 'destroyable'*/
+
+            if (destroyable.canBeDestroyedBy(this))
+                // Destrói o destroyable
+                destroyable.onDestroyed(room);
         }
     }
 

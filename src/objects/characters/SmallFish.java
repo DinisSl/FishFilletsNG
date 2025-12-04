@@ -1,6 +1,5 @@
 package objects.characters;
 
-import interfaces.Destroyable;
 import interfaces.FitsInHole;
 import interfaces.Movable;
 import objects.attributes.Size;
@@ -11,9 +10,7 @@ import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;
 import pt.iscte.poo.utils.Vector2D;
 
-import java.util.List;
-
-public class SmallFish extends GameCharacter implements Destroyable, FitsInHole {
+public class SmallFish extends GameCharacter implements FitsInHole {
 
 	public SmallFish(Point2D p) {
         super(p);
@@ -51,9 +48,8 @@ public class SmallFish extends GameCharacter implements Destroyable, FitsInHole 
                 Point2D pushTo = nextPos.plus(vector);
                 // Tenta empurrar o objeto. Se conseguir, o peixe move-se atrás.
                 boolean pushed = m.push(room, nextPos, pushTo);
-                if (pushed) {
+                if (pushed)
                     moveSelf(vector, room);
-                }
 
             }
             return false; // Estava bloqueado (mesmo que tenha empurrado, o turno de input acaba)
@@ -64,18 +60,7 @@ public class SmallFish extends GameCharacter implements Destroyable, FitsInHole 
         return false;
     }
 
-
-    @Override
-    public void onDestroyed(Room room) {
-        room.killGameCharacter(List.of(this), false);
-    }
-
-    @Override
-    public boolean canBeDestroyedBy(SinkingObject object) {
-        return object.getWeight() == Weight.HEAVY;
-    }
-
-    // Se o BigFish bater no SmallFish bloqueia se n passa
+    // Se um GameCharacter bater noutro este n pode passar para cima dele
     @Override
     public boolean blocksMovement(GameObject gameCharacter) {
         return true;

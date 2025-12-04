@@ -36,12 +36,13 @@ public class Trap extends SinkingObject implements Deadly, Movable {
         if (destObj instanceof FitsInHole)
             return;
 
-        if (destObj instanceof Destroyable d) {
-            // 1. Check if "this" falling object is heavy enough to destroy "d"
-            if (d.canBeDestroyedBy(this)) {
-                // 2. Perform the destruction
-                d.onDestroyed(room);
-            }
+        if (destObj instanceof Destroyable destroyable) {
+            /*Verifica se este Sinking Object é pesado o suficiente para
+            destruir 'destroyable'*/
+
+            if (destroyable.canBeDestroyedBy(this))
+                // Destrói o destroyable
+                destroyable.onDestroyed(room);
         }
     }
 
