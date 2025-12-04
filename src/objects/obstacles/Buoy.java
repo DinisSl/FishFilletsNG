@@ -1,7 +1,6 @@
 package objects.obstacles;
 
 import interfaces.LoadBearer;
-import interfaces.Movable;
 import interfaces.NonBlocking;
 import objects.attributes.Size;
 import objects.attributes.Weight;
@@ -11,7 +10,7 @@ import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;
 
 
-public class Buoy extends FloatingObject implements Movable, LoadBearer {
+public class Buoy extends FloatingObject implements LoadBearer {
 
     public Buoy(Point2D point) {
         super(point);

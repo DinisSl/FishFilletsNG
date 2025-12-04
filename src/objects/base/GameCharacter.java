@@ -83,6 +83,9 @@ public abstract class GameCharacter extends GameObject implements LoadBearer {
         updateCurrentDirection(vector);
 
         room.moveObject(this, destination);
+
+        // Serve para controlar o movimento do Crab
+        room.incrementTurn();
     }
 
     public Point2D getNextPosition(Vector2D dir) {

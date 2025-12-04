@@ -11,7 +11,7 @@ import pt.iscte.poo.utils.Point2D;
 
 import java.util.List;
 
-public class Trap extends SinkingObject implements Deadly, Movable {
+public class Trap extends SinkingObject implements Deadly {
 
     public Trap(Point2D p) {
         super(p);
@@ -67,13 +67,6 @@ public class Trap extends SinkingObject implements Deadly, Movable {
         }
         return false;
     }
-
-//    @Override
-//    protected boolean canFallThrough(GameObject objBelow) {
-//        if (objBelow instanceof NonBlocking) return true;
-//
-//        return objBelow instanceof FitsInHole;
-//    }
 
     @Override
     public Weight getWeight() {

@@ -1,7 +1,6 @@
 package objects.obstacles;
 
 import interfaces.NonBlocking;
-import interfaces.Movable;
 import objects.base.SinkingObject;
 import objects.base.GameCharacter;
 import objects.base.GameObject;
@@ -16,7 +15,7 @@ import pt.iscte.poo.utils.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Bomb extends SinkingObject implements Movable {
+public class Bomb extends SinkingObject {
     private int originalY;
 
 

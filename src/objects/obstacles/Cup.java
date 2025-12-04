@@ -2,7 +2,6 @@ package objects.obstacles;
 
 import interfaces.FitsInHole;
 import interfaces.NonBlocking;
-import interfaces.Movable;
 import objects.base.SinkingObject;
 import objects.base.GameCharacter;
 import objects.base.GameObject;
@@ -11,7 +10,7 @@ import pt.iscte.poo.game.Room;
 import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;
 
-public class Cup extends SinkingObject implements Movable, FitsInHole {
+public class Cup extends SinkingObject implements FitsInHole {
 
     public Cup(Point2D p) {
         super(p);

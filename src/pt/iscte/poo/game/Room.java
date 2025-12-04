@@ -20,6 +20,7 @@ public class Room {
     private final File file;
     // Guarda o Game Character que está a ser controlado
     private GameCharacter currentGameCharacter;
+    private int turnCount;
 
     /*Gere todos os movimentos quer dos Game Characters,
     quer dos Game Objects*/
@@ -28,6 +29,7 @@ public class Room {
         this.file = f;
         this.activeGC = new ArrayList<>();
         this.grid = new Grid();
+        this.turnCount = 0;
     }
 
 
@@ -200,6 +202,15 @@ public class Room {
         if (!activeGC.isEmpty()) setCurrentGameCharacter(activeGC.getFirst());
     }
 
+    /*-----------------------------------------------------------
+    TURN COUNT (CADA VEZ QUE UM GAME CHARACTER SE MEXE)
+    -----------------------------------------------------------*/
 
-
+    public void incrementTurn() {
+        this.turnCount++;
+    }
+    
+    public int getTurnCount() {
+        return this.turnCount;
+    }
 }
