@@ -125,8 +125,7 @@ public abstract class GameCharacter extends GameObject implements LoadBearer {
     /*-----------------------------------------------------------
     LÓGICA DE EMPURRAR (chain push)
     -----------------------------------------------------------*/
-    public void attemptChainPush(Vector2D vector, Room room) {
-        Direction direction = Direction.forVector(vector);
+    public void attemptChainPush(Direction direction, Vector2D vector, Room room) {
         // Obtém objetos na direção do movimento
         List<GameObject> lineOfObjects = room.getGrid().allObjectsAboveToSide(this.getPosition(), direction);
 
