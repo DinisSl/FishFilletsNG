@@ -1,11 +1,11 @@
-package objects.obstacles;
+package objects.movingObjects;
 
 import objects.base.SinkingObject;
 import objects.base.GameCharacter;
 import objects.base.GameObject;
 import objects.attributes.Weight;
 import objects.effects.Explosion;
-import objects.enviroment.Water;
+import objects.fixedObjects.Water;
 import pt.iscte.poo.game.Room;
 import pt.iscte.poo.gui.ImageGUI;
 import pt.iscte.poo.utils.Direction;
@@ -64,12 +64,9 @@ public class Bomb extends SinkingObject {
         boolean succesfullPush = super.push(room, from, to);
 
         if (succesfullPush) {
-            // Check what was below the bomb *before* it moved
             Point2D posObjBelow = from.plus(Direction.DOWN.asVector());
             GameObject objBelow = room.getGrid().getAt(posObjBelow);
 
-            // If we were walking on a character's head, update originalY.
-            // This prevents explosion when stepping off a fish onto a platform at the same height.
             if (objBelow instanceof GameCharacter) {
                 this.originalY = to.getY();
             }

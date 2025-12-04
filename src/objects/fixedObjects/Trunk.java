@@ -1,4 +1,4 @@
-package objects.obstacles;
+package objects.fixedObjects;
 
 import interfaces.Destroyable;
 import objects.base.SinkingObject;

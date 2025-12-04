@@ -11,6 +11,7 @@ import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;
 import pt.iscte.poo.utils.Vector2D;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,22 +49,6 @@ public abstract class GameCharacter extends GameObject implements LoadBearer {
 
     @Override
     public void update(Room room) {
-        // Limpar lista antiga de objetos suportados
-        clearSupportedObjects();
-
-        // Verificar o que está diretamente acima (Lógica movida do GravitySystem)
-        List<GameObject> objsAbove = room.getGrid().allObjectsAboveToSide(this.getPosition(), Direction.UP);
-
-        for (GameObject go : objsAbove) {
-            if (go instanceof SinkingObject fo) {
-                if (this instanceof NonBlocking) continue;
-                addSupportedObject(fo);
-            } else {
-                // Se encontrar algo que não cai (parede), para de procurar para cima
-                break;
-            }
-        }
-
         // Verificar se morre com o peso atual
         processLoadBearing(room);
     }
@@ -84,9 +69,6 @@ public abstract class GameCharacter extends GameObject implements LoadBearer {
 
     // Metodo utilitário comum para realizar o movimento final se estiver livre
     public void moveSelf(Vector2D vector, Room room) {
-        // Limpa objetos que estava a segurar
-        this.clearSupportedObjects();
-
         Point2D destination = getPosition().plus(vector);
 
         updateCurrentDirection(vector);
@@ -128,12 +110,9 @@ public abstract class GameCharacter extends GameObject implements LoadBearer {
     protected boolean checkCommonCollisions(GameObject nextObj, Room room) {
         if (!room.getActiveGC().contains(this)) return false;
 
-        if (nextObj == null)
-            return room.handleExit();
-
         checkDeadlyCollision(nextObj, room);
 
-        return false; // Level did not end
+        return false;
     }
 
     /*-----------------------------------------------------------

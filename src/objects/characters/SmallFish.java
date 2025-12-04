@@ -31,11 +31,13 @@ public class SmallFish extends GameCharacter implements FitsInHole {
         Point2D nextPos = getNextPosition(vector);
         GameObject nextObj = room.getGrid().getAt(nextPos);
 
+        if (nextObj == null)
+            return room.handleExit();
+
         if (checkCommonCollisions(nextObj, room)) return true;
 
-
-        // 2. Verificar se está bloqueado e interagir
-        if (nextObj != null && nextObj.blocksMovement(this)) {
+        // Verificar se está bloqueado e interagir
+        if (nextObj.blocksMovement(this)) {
             // Verificar se pode empurrar (Lógica simples do SmallFish)
             if (nextObj instanceof Movable movable && movable.canBePushedBy(this, direction)) {
                 Point2D pushTo = nextPos.plus(vector);
@@ -48,7 +50,7 @@ public class SmallFish extends GameCharacter implements FitsInHole {
             return false; // Estava bloqueado (mesmo que tenha empurrado, o turno de input acaba)
         }
 
-        // 3. Caminho livre (Água ou Background)
+        // Caminho livre (Água ou Background)
         moveSelf(vector, room);
         return false;
     }

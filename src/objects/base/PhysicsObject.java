@@ -40,9 +40,11 @@ public abstract class PhysicsObject extends GameObject implements Movable {
 
     @Override
     public boolean push(Room room, Point2D from, Point2D to) {
-        GameCharacter gc = room.getCurrentGameCharacter();
         Vector2D moveVec = Vector2D.movementVector(from, to);
         Direction dir = Direction.forVector(moveVec);
+
+
+        GameCharacter gc = room.getCurrentGameCharacter();
         GameObject objInNextPos = room.getGrid().getAt(to);
 
         if (objInNextPos instanceof NonBlocking && canBePushedBy(gc, dir)) {

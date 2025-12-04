@@ -1,4 +1,4 @@
-package objects;
+package objects.movingObjects;
 
 import interfaces.*;
 import interfaces.markerInterfaces.FitsInHole;

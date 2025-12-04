@@ -57,7 +57,6 @@ public class GameEngine implements Observer {
         for (File file : roomsArray) {
             this.rooms.add(new Room(file));
         }
-
     }
 
     public void startLevel() {

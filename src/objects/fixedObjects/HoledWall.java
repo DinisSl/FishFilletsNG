@@ -1,4 +1,4 @@
-package objects.enviroment;
+package objects.fixedObjects;
 
 import interfaces.markerInterfaces.FitsInHole;
 import interfaces.markerInterfaces.Passable;

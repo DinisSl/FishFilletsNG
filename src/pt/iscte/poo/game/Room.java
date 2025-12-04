@@ -1,7 +1,7 @@
 package pt.iscte.poo.game;
 
 import objects.effects.Blood;
-import objects.enviroment.Water;
+import objects.fixedObjects.Water;
 import objects.base.*;
 import pt.iscte.poo.gui.ImageGUI;
 import pt.iscte.poo.utils.Point2D;

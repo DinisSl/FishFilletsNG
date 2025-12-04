@@ -1,4 +1,4 @@
-package objects.obstacles;
+package objects.movingObjects;
 
 import interfaces.LoadBearer;
 import interfaces.markerInterfaces.NonBlocking;

@@ -1,4 +1,4 @@
-package objects.obstacles;
+package objects.fixedObjects;
 
 import objects.base.GameObject;
 import pt.iscte.poo.utils.Point2D;

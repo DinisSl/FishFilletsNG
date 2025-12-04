@@ -27,35 +27,49 @@ public class BigFish extends GameCharacter {
         return Size.BIG;
     }
 
+    /**
+     * Processa o movimento da entidade numa direção específica.
+     *
+     * Calcula a nova posição e verifica interações com a grelha da sala.
+     * Se o destino for inválido, tenta sair da sala. Caso contrário, verifica
+     * colisões com obstáculos, interações mortais ou tenta empurrar objetos movíveis.
+     * Se o caminho estiver livre, move a entidade.
+     *
+     * @param direction A direção do movimento.
+     * @param room A sala onde ocorre a interação.
+     * @return true se o objeto for removido ou houver uma mudança de nível, false caso contrário.
+     */
     @Override
     public boolean processMovement(Direction direction, Room room) {
         Vector2D vector = direction.asVector();
         Point2D nextPos = getNextPosition(vector);
+
         GameObject nextObj = room.getGrid().getAt(nextPos);
+        if (nextObj == null) {
+            return room.handleExit();
+        }
+
         List<GameObject> nextObjs = room.getGrid().getObjectsAt(nextPos);
 
-
         for (GameObject obj : nextObjs) {
-            // If we find an object that blocks us AND we cannot move it (e.g., HoledWall)
-            // then we are blocked, even if there is a pushable Cup on top.
             if (obj.blocksMovement(this) && !(obj instanceof Movable)) {
                 checkDeadlyCollision(obj, room);
-                if (!room.getActiveGC().contains(this)) return false;
-                return false;
+                return !room.getActiveGC().contains(this);
             }
         }
 
-        if (checkCommonCollisions(nextObj, room)) return true;
+        if (checkCommonCollisions(nextObj, room)) {
+            return true;
+        }
 
-        // 2. Verify blocking / pushing
-        if (nextObj != null && nextObj.blocksMovement(this)) {
-            if (nextObj instanceof Movable movable && movable.canBePushedBy(this, direction))
-                    attemptChainPush(vector, room);
-
+        if (nextObj.blocksMovement(this)) {
+            if (nextObj instanceof Movable movable &&
+                    movable.canBePushedBy(this, direction)) {
+                attemptChainPush(vector, room);
+            }
             return false;
         }
 
-        // 3. Path free
         moveSelf(vector, room);
         return false;
     }

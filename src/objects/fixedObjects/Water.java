@@ -1,4 +1,4 @@
-package objects.enviroment;
+package objects.fixedObjects;
 
 import interfaces.markerInterfaces.NonBlocking;
 import objects.base.GameObject;

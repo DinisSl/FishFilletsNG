@@ -1,21 +1,15 @@
 package objects.base;
 
-import interfaces.LoadBearer;
-import interfaces.Movable;
-import objects.attributes.Weight;
 import objects.characters.BigFish;
 import objects.characters.SmallFish;
-import objects.enviroment.HoledWall;
-import objects.enviroment.Wall;
-import objects.obstacles.*;
+import objects.fixedObjects.HoledWall;
+import objects.fixedObjects.SteelBeam;
+import objects.fixedObjects.Trunk;
+import objects.fixedObjects.Wall;
+import objects.movingObjects.*;
 import pt.iscte.poo.game.Room;
 import pt.iscte.poo.gui.ImageTile;
-import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 public abstract class GameObject implements ImageTile {
     public final int LAYER_WATER = 0;
@@ -26,13 +20,8 @@ public abstract class GameObject implements ImageTile {
 
     private Point2D position;
 
-    /*Set para guardar os Floating Objects que o Game Character está
-    a suportar, utilizamos um set, pois por defeito não permite duplicados*/
-    private final Set<Movable> supportedObjects;
-
     public GameObject(Point2D position) {
         this.position = position;
-        this.supportedObjects = new HashSet<>();
     }
 
     // Metodo estático que devolve um GameObject passando um a letra do objeto como um char
@@ -79,97 +68,5 @@ public abstract class GameObject implements ImageTile {
     com o comportamento de todos os objetos, por defeito não
     faz nada*/
     public void update(Room room) {}
-
-    /*-----------------------------------------------------------
-    MÉTODOS PARA MANIPULAR O SET
-    -----------------------------------------------------------*/
-    public void addSupportedObject(Movable mo) {
-        this.supportedObjects.add(mo);
-    }
-
-    public void clearSupportedObjects() {
-        this.supportedObjects.clear();
-    }
-
-    /*-----------------------------------------------------------
-    MÉTODOS PARA LIDAR COM OS OBJETOS SUPORTADOS
-    -----------------------------------------------------------*/
-    /**
-     * Analisa objetos diretamente acima, calcula o peso e aciona a interface LoadBearer
-     * se o objeto estiver sobrecarregado.
-     *
-     * @param room A sala onde o objeto se encontra.
-     * @return true se o objeto ficou sobrecarregado e foi executada uma ação.
-     */
-    protected boolean processLoadBearing(Room room) {
-        if (!(this instanceof LoadBearer loadBearer)) {
-            return false;
-        }
-
-        updateSupportedLoad(room);
-        return evaluateAndTriggerOverload(room, loadBearer);
-    }
-
-    /**
-     * Limpa o estado anterior e analisa a grelha à procura de novos SinkingObjects
-     * que estejam diretamente acima do Game Object.
-     */
-    private void updateSupportedLoad(Room room) {
-        clearSupportedObjects();
-
-        List<GameObject> objectsAbove = room.getGrid()
-                .allObjectsAboveToSide(this.getPosition(), Direction.UP);
-
-        for (GameObject obj : objectsAbove) {
-            if (obj instanceof Movable movable) {
-                addSupportedObject(movable);
-            } else {
-                // Interrompe a análise ao atingir uma parede ou teto
-                break;
-            }
-        }
-    }
-
-    /**
-     * Calcula os pesos atuais e aciona a ação de sobrecarga se os limites forem excedidos.
-     *
-     * @param loadBearer A instância da interface para verificar os limites.
-     * @return true se o limite foi excedido e a ação onOverload foi chamada.
-     */
-    private boolean evaluateAndTriggerOverload(Room room, LoadBearer loadBearer) {
-        int[] weights = checkSupportOverload();
-        int heavyWeight = weights[0];
-        int lightWeight = weights[1];
-
-        if (loadBearer.isOverloaded(heavyWeight, lightWeight)) {
-            loadBearer.onOverload(room);
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Conta todos os Sinking Objects em cima do Game Object
-     * e devolve-os em forma de um int[]
-     *
-     * @return Devolve um array de inteiros.
-     * Posição [0] - Sinking Objects Pesados
-     * Posição [1] - Sinking Objects Leves
-     */
-    private int[] checkSupportOverload() {
-        int heavyFO = 0;
-        int lightFO = 0;
-
-        for (Movable fo : this.supportedObjects) {
-            if (fo.getWeight() == Weight.HEAVY) {
-                heavyFO++;
-            } else if (fo.getWeight() == Weight.LIGHT) {
-                lightFO++;
-            }
-        }
-
-        return new int[] {heavyFO, lightFO};
-    }
 
 }

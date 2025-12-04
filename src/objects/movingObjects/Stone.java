@@ -1,8 +1,7 @@
-package objects.obstacles;
+package objects.movingObjects;
 
 import interfaces.markerInterfaces.NonBlocking;
 import interfaces.markerInterfaces.Passable;
-import objects.Crab;
 import objects.base.SinkingObject;
 import objects.base.GameObject;
 import objects.attributes.Weight;

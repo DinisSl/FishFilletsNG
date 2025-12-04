@@ -1,4 +1,4 @@
-package objects.obstacles;
+package objects.movingObjects;
 
 import objects.base.SinkingObject;
 import objects.base.GameCharacter;
@@ -30,6 +30,7 @@ public class Anchor extends SinkingObject {
 
     @Override
     public boolean canBePushedBy(GameCharacter character, Direction direction) {
+        if (direction.isVertical()) return false;
         return character.canPush(this.getWeight()) && !this.pushedOnce;
     }
 
@@ -41,13 +42,13 @@ public class Anchor extends SinkingObject {
         if (nextDir.isVertical())
             return false;
 
-        // Só pode se puxada uma vez
+        // Só pode ser puxada uma vez
         if (this.pushedOnce)
             return false;
 
         boolean succesfullPush = super.push(room, from, to);
 
-        // Se se mexeu alterar a flag
+        // Se se mexeu altera a flag
         if (succesfullPush)
             this.pushedOnce = true;
 
