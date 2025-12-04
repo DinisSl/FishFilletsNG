@@ -1,8 +1,7 @@
 package objects.obstacles;
 
 import interfaces.LoadBearer;
-import interfaces.NonBlocking;
-import objects.attributes.Size;
+import interfaces.markerInterfaces.NonBlocking;
 import objects.attributes.Weight;
 import objects.base.*;
 import pt.iscte.poo.game.Room;
@@ -40,33 +39,6 @@ public class Buoy extends FloatingObject implements LoadBearer {
 
         if (objBelow instanceof NonBlocking)
             room.moveObject(this, pointBelow);
-    }
-
-    @Override
-    public void onFinishedMovement(Room room, Point2D landedOn) {
-        // Não acontece nada
-    }
-
-    @Override
-    public boolean canBePushedBy(GameCharacter character, Direction direction) {
-        if (character.getSize() == Size.SMALL) {
-//            System.out.println(direction.isHorizontal());
-            return direction.isHorizontal();
-        }
-
-//        System.out.println("TRUE");
-        return true;
-    }
-
-    @Override
-    public boolean push(Room room, Point2D from, Point2D to) {
-        GameObject objInNextPos = room.getGrid().getAt(to);
-        if (objInNextPos instanceof NonBlocking) {
-            room.moveObject(this, to);
-            return true;
-        }
-
-        return false;
     }
 
     @Override

@@ -31,6 +31,7 @@ public class BigFish extends GameCharacter {
     public boolean processMovement(Direction direction, Room room) {
         Vector2D vector = direction.asVector();
         Point2D nextPos = getNextPosition(vector);
+        GameObject nextObj = room.getGrid().getAt(nextPos);
         List<GameObject> nextObjs = room.getGrid().getObjectsAt(nextPos);
 
 
@@ -44,34 +45,19 @@ public class BigFish extends GameCharacter {
             }
         }
 
-        GameObject nextObj = room.getGrid().getAt(nextPos);
-
-        // 1. Verify Exit
-        if (nextObj == null)
-            return room.handleExit();
+        if (checkCommonCollisions(nextObj, room)) return true;
 
         // 2. Verify blocking / pushing
-        if (nextObj.blocksMovement(this)) {
-            checkDeadlyCollision(nextObj, room);
-
-            if (!room.getActiveGC().contains(this)) return false;
-
-            if (nextObj instanceof Movable movable) {
-                if (movable.canBePushedBy(this, direction))
+        if (nextObj != null && nextObj.blocksMovement(this)) {
+            if (nextObj instanceof Movable movable && movable.canBePushedBy(this, direction))
                     attemptChainPush(vector, room);
 
-            }
             return false;
         }
 
         // 3. Path free
         moveSelf(vector, room);
         return false;
-    }
-
-    // Se um GameCharacter bater noutro este n pode passar para cima dele    @Override
-    public boolean blocksMovement(GameObject gameCharacter) {
-        return true;
     }
 
     @Override
@@ -82,12 +68,7 @@ public class BigFish extends GameCharacter {
      /*Se tiver a apontar para a direita devolve o bigFishRight,
      Se tiver a apontar para a esquerda devolve o bigFishLeft*/
     @Override
-	public String getName() {
-        if (super.getCurrentDirection() == Direction.RIGHT) {
-            return "bigFishRight";
-        } else if (super.getCurrentDirection() == Direction.LEFT) {
-            return "bigFishLeft";
-        }
-        return "bigFishLeft";
+	public String getBaseName() {
+        return "bigFish";
 	}
 }

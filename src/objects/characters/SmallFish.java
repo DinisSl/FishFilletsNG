@@ -1,6 +1,6 @@
 package objects.characters;
 
-import interfaces.FitsInHole;
+import interfaces.markerInterfaces.FitsInHole;
 import interfaces.Movable;
 import objects.attributes.Size;
 import objects.attributes.Weight;
@@ -31,39 +31,26 @@ public class SmallFish extends GameCharacter implements FitsInHole {
         Point2D nextPos = getNextPosition(vector);
         GameObject nextObj = room.getGrid().getAt(nextPos);
 
-        // 1. Verificar Saída
-        if (nextObj == null)
-            return room.handleExit();
+        if (checkCommonCollisions(nextObj, room)) return true;
 
 
         // 2. Verificar se está bloqueado e interagir
-        if (nextObj.blocksMovement(this)) {
-            // Verificar colisão mortal
-            checkDeadlyCollision(nextObj, room);
-
-            if (!room.getActiveGC().contains(this)) return false;
-
+        if (nextObj != null && nextObj.blocksMovement(this)) {
             // Verificar se pode empurrar (Lógica simples do SmallFish)
-            if (nextObj instanceof Movable m && m.canBePushedBy(this, direction)) {
+            if (nextObj instanceof Movable movable && movable.canBePushedBy(this, direction)) {
                 Point2D pushTo = nextPos.plus(vector);
-                // Tenta empurrar o objeto. Se conseguir, o peixe move-se atrás.
-                boolean pushed = m.push(room, nextPos, pushTo);
-                if (pushed)
-                    moveSelf(vector, room);
 
+                // Tenta empurrar o objeto. Se conseguir, o peixe move-se atrás.
+                if (movable.push(room, nextPos, pushTo))
+                    moveSelf(vector, room);
             }
+
             return false; // Estava bloqueado (mesmo que tenha empurrado, o turno de input acaba)
         }
 
         // 3. Caminho livre (Água ou Background)
         moveSelf(vector, room);
         return false;
-    }
-
-    // Se um GameCharacter bater noutro este n pode passar para cima dele
-    @Override
-    public boolean blocksMovement(GameObject gameCharacter) {
-        return true;
     }
 
     @Override
@@ -73,13 +60,8 @@ public class SmallFish extends GameCharacter implements FitsInHole {
 
     /*Se tiver a apontar para a direita devolve o smallFishRight
     Se tiver a apontar para a esquerda devolve o smallFishLeft*/
-	@Override
-	public String getName() {
-		if (super.getCurrentDirection() == Direction.RIGHT) {
-            return "smallFishRight";
-        } else if (super.getCurrentDirection() == Direction.LEFT) {
-            return "smallFishLeft";
-        }
-        return "smallFishLeft";
-	}
+    @Override
+    public String getBaseName() {
+        return "smallFish";
+    }
 }

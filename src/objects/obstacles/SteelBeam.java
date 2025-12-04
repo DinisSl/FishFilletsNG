@@ -20,8 +20,4 @@ public class SteelBeam extends GameObject {
     @Override
     public int getLayer() { return super.LAYER_OBSTACLES; }
 
-    @Override
-    public boolean blocksMovement(GameObject gameCharacter) {
-        return true;
-    }
 }

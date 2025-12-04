@@ -69,9 +69,11 @@ public abstract class GameObject implements ImageTile {
         this.position = position;
     }
 
-    /*Metodo abstrato que controla o que acontece a cada
-    GameCharacter cada vez que bate num GameObject*/
-    public abstract boolean blocksMovement(GameObject gameCharacter);
+    /*Metodo que controla o que acontece a cada GameCharacter,
+    por default é true, cada vez que bate num GameObject*/
+    public boolean blocksMovement(GameObject gameCharacter) {
+        return true;
+    }
 
     /*Metodo chamado no Game Engine a cada tick para lidar
     com o comportamento de todos os objetos, por defeito não

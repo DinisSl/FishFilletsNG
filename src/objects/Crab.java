@@ -1,6 +1,9 @@
 package objects;
 
 import interfaces.*;
+import interfaces.markerInterfaces.FitsInHole;
+import interfaces.markerInterfaces.NonBlocking;
+import interfaces.markerInterfaces.Passable;
 import objects.attributes.Size;
 import objects.attributes.Weight;
 import objects.base.GameCharacter;
@@ -69,11 +72,6 @@ public class Crab extends SinkingObject implements Deadly, FitsInHole, Destroyab
     }
 
     @Override
-    public boolean push(Room room, Point2D from, Point2D to) {
-        return false;
-    }
-
-    @Override
     public Weight getWeight() {
         return Weight.LIGHT;
     }
@@ -97,27 +95,31 @@ public class Crab extends SinkingObject implements Deadly, FitsInHole, Destroyab
         // Se sair da room já não volta
         if (objNextPos == null) room.removeObject(this);
 
+        handleInteraction(room, objNextPos, nextPos);
+    }
+
+    private void handleInteraction(Room room, GameObject objNextPos, Point2D nextPos) {
         // Vê se esse objeto é um Game Character
         if (objNextPos instanceof GameCharacter gc) {
             // Se for um Game Character grande morre
             if (gc.getSize() == Size.BIG) {
                 room.removeObject(this);
-                return;
-            // Se for um Game Character pequeno mata
+                // Se for um Game Character pequeno mata
             } else if (gc.getSize() == Size.SMALL) {
                 gc.checkDeadlyCollision(this, room);
-                return;
             }
+            return;
+        }
+
         // Se for deadly mata (Trap)
-        } else if (objNextPos instanceof Deadly) {
+        if (objNextPos instanceof Deadly) {
             room.removeObject(this);
             return;
         }
 
         // Vê se pode passar para o próximo ponto
-        boolean isPassable = (objNextPos instanceof NonBlocking) ||
-                             (objNextPos instanceof Passable);
         // Se puder passa
-        if (isPassable) room.moveObject(this, nextPos);
+        if ((objNextPos instanceof NonBlocking) || (objNextPos instanceof Passable))
+            room.moveObject(this, nextPos);
     }
 }

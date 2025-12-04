@@ -1,6 +1,6 @@
 package objects.effects;
 
-import interfaces.NonBlocking;
+import interfaces.markerInterfaces.NonBlocking;
 import objects.base.GameObject;
 import pt.iscte.poo.utils.Point2D;
 

@@ -1,10 +1,7 @@
 package objects.obstacles;
 
-import interfaces.Destroyable;
-import interfaces.NonBlocking;
 import objects.base.SinkingObject;
 import objects.base.GameCharacter;
-import objects.base.GameObject;
 import objects.attributes.Weight;
 import pt.iscte.poo.game.Room;
 import pt.iscte.poo.utils.Direction;
@@ -26,20 +23,6 @@ public class Anchor extends SinkingObject {
     }
 
     @Override
-    public void onFinishedMovement(Room room, Point2D posBelow) {
-        GameObject destObj = room.getGrid().getAt(posBelow);
-
-        if (destObj instanceof Destroyable destroyable) {
-            /*Verifica se este Sinking Object é pesado o suficiente para
-            destruir 'destroyable'*/
-
-            if (destroyable.canBeDestroyedBy(this))
-                // Destrói o destroyable
-                destroyable.onDestroyed(room);
-        }
-    }
-
-    @Override
     public Weight getWeight() {
         return Weight.HEAVY;
     }
@@ -52,19 +35,22 @@ public class Anchor extends SinkingObject {
 
     @Override
     public boolean push(Room room, Point2D from, Point2D to) {
-        GameCharacter gc = room.getCurrentGameCharacter();
-        GameObject objInNextPos = room.getGrid().getAt(to);
-
         Vector2D v = Vector2D.movementVector(from, to);
         Direction nextDir = Direction.forVector(v);
-        if (nextDir == Direction.UP || nextDir == Direction.DOWN)
+
+        if (nextDir.isVertical())
             return false;
 
-        if (objInNextPos instanceof NonBlocking && gc.canPush(Weight.HEAVY) && !this.pushedOnce) {
-            room.moveObject(this, to);
+        // Só pode se puxada uma vez
+        if (this.pushedOnce)
+            return false;
+
+        boolean succesfullPush = super.push(room, from, to);
+
+        // Se se mexeu alterar a flag
+        if (succesfullPush)
             this.pushedOnce = true;
-            return true;
-        }
-        return false;
+
+        return succesfullPush;
     }
 }

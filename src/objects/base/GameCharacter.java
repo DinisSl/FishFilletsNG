@@ -2,7 +2,7 @@ package objects.base;
 
 import interfaces.Deadly;
 import interfaces.LoadBearer;
-import interfaces.NonBlocking;
+import interfaces.markerInterfaces.NonBlocking;
 import interfaces.Movable;
 import objects.attributes.Size;
 import objects.attributes.Weight;
@@ -34,9 +34,18 @@ public abstract class GameCharacter extends GameObject implements LoadBearer {
 
     public abstract Size getSize();
 
+    protected abstract String getBaseName();
+
     /*-----------------------------------------------------------
     OVERRIDES (ciclo de vida / objetos em cima)
     -----------------------------------------------------------*/
+
+    @Override
+    public String getName() {
+        String directionSuffix = (getCurrentDirection() == Direction.RIGHT) ? "Right" : "Left";
+        return getBaseName() + directionSuffix;
+    }
+
     @Override
     public void update(Room room) {
         // Limpar lista antiga de objetos suportados
@@ -108,6 +117,23 @@ public abstract class GameCharacter extends GameObject implements LoadBearer {
             // Houve colisão mortal (ou interação mortal)
             deadly.onCharacterContact(this, room);
         }
+    }
+
+    /**
+     * Gere os comportamentos comuns: Sair do nível e tocar em objetos
+     * que são instancia de Deadly
+     *
+     * @return Devolve true se o nível tiver terminado
+     */
+    protected boolean checkCommonCollisions(GameObject nextObj, Room room) {
+        if (!room.getActiveGC().contains(this)) return false;
+
+        if (nextObj == null)
+            return room.handleExit();
+
+        checkDeadlyCollision(nextObj, room);
+
+        return false; // Level did not end
     }
 
     /*-----------------------------------------------------------

@@ -1,17 +1,14 @@
 package objects.base;
 
 import interfaces.Movable;
-import interfaces.NonBlocking;
 import pt.iscte.poo.game.Room;
 import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;
 
-public abstract class FloatingObject extends GameObject implements Movable {
-    private boolean floating;
+public abstract class FloatingObject extends PhysicsObject implements Movable {
 
     public FloatingObject(Point2D point) {
         super(point);
-        this.floating = false;
     }
 
     /**
@@ -34,48 +31,8 @@ public abstract class FloatingObject extends GameObject implements Movable {
 
         GameObject objAbove = room.getGrid().getAt(posAbove);
 
-        if (tryFloatingIntoBackground(room, objAbove, posAbove)) return;
+        if (tryMovingIntoBackground(room, objAbove, posAbove)) return;
 
         handleLanding(room, posAbove);
     }
-
-    private boolean tryFloatingIntoBackground(Room room, GameObject objAbove, Point2D posAbove) {
-        if (objAbove instanceof NonBlocking) {
-            if (!this.isMoving()) onStartMovement();
-
-            room.moveObject(this, posAbove);
-            return true;
-        }
-        return false;
-    }
-
-    private void handleLanding(Room room, Point2D posAbove) {
-        if (this.floating) {
-            onFinishedMovement(room, posAbove);
-            this.floating = false; // Parou de subir
-        }
-    }
-
-    // Movable interface
-    @Override
-    public void onStartMovement() {
-        this.floating = true;
-    }
-
-    @Override
-    public boolean isMoving() {
-        return this.floating;
-    }
-
-    // Metodo abstrato da classe abstrata GameObject
-    @Override
-    public boolean blocksMovement(GameObject gameCharacter) {
-        return true;
-    }
-
-    @Override
-    public int getLayer() {
-        return super.LAYER_ITEMS;
-    }
-
 }

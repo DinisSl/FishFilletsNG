@@ -1,7 +1,6 @@
 package objects.obstacles;
 
 import interfaces.Destroyable;
-import interfaces.Movable;
 import objects.base.SinkingObject;
 import objects.base.GameObject;
 import objects.attributes.Weight;
@@ -25,20 +24,12 @@ public class Trunk extends GameObject implements Destroyable {
     }
 
     @Override
-    public boolean blocksMovement(GameObject gameCharacter) {
-        // tronco bloqueia os peixes
-        return true;
-    }
-
-    @Override
     public void onDestroyed(Room room) {
         room.removeObject(this);
     }
 
     @Override
     public boolean canBeDestroyedBy(SinkingObject object) {
-        if (object instanceof Movable movable)
-            return movable.getWeight() == Weight.HEAVY;
-        return false;
+        return object.getWeight() == Weight.HEAVY;
     }
 }

@@ -1,7 +1,7 @@
 package objects.enviroment;
 
-import interfaces.FitsInHole;
-import interfaces.Passable;
+import interfaces.markerInterfaces.FitsInHole;
+import interfaces.markerInterfaces.Passable;
 import objects.base.GameObject;
 import pt.iscte.poo.utils.Point2D;
 

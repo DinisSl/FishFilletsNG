@@ -1,16 +1,23 @@
 package objects.base;
 
 import interfaces.*;
+import interfaces.markerInterfaces.FitsInHole;
+import interfaces.markerInterfaces.Passable;
 import pt.iscte.poo.game.Room;
 import pt.iscte.poo.utils.Direction;
 import pt.iscte.poo.utils.Point2D;
 
-public abstract class SinkingObject extends GameObject implements Movable {
-    private boolean sinking;
+public abstract class SinkingObject extends PhysicsObject implements Movable {
 
     public SinkingObject(Point2D point) {
         super(point);
-        this.sinking = false;
+    }
+
+    @Override
+    public void onFinishedMovement(Room room, Point2D landedOn) {
+        super.onFinishedMovement(room, landedOn);
+        GameObject destObj = room.getGrid().getAt(landedOn);
+        attemptDestruction(room, destObj);
     }
 
     /**
@@ -33,23 +40,13 @@ public abstract class SinkingObject extends GameObject implements Movable {
 
         GameObject objBelow = room.getGrid().getAt(posBelow);
 
-        if (trySinkingIntoBackground(room, objBelow, posBelow)) return;
+        if (tryMovingIntoBackground(room, objBelow, posBelow)) return;
 
         if (trySinkingIntoHole(room, objBelow, posBelow)) return;
 
         if (tryDestroyObject(room, objBelow)) return;
 
         handleLanding(room, posBelow);
-    }
-
-    private boolean trySinkingIntoBackground(Room room, GameObject objBelow, Point2D posBelow) {
-        if (objBelow instanceof NonBlocking) {
-            if (!this.isMoving()) onStartMovement();
-
-            room.moveObject(this, posBelow);
-            return true;
-        }
-        return false;
     }
 
     private boolean trySinkingIntoHole(Room room, GameObject objBelow, Point2D posBelow) {
@@ -61,43 +58,20 @@ public abstract class SinkingObject extends GameObject implements Movable {
     }
 
     private boolean tryDestroyObject(Room room, GameObject objBelow) {
-        if (objBelow instanceof Destroyable destroyable) {
-            // Tenta destruir o objeto abaixo ex. Trunk
-            if (destroyable.canBeDestroyedBy(this)) {
-                destroyable.onDestroyed(room);
-                // O objeto cai no próximo tick, não instantaneamente
-            }
+        if (objBelow instanceof Destroyable) {
+            attemptDestruction(room, objBelow);
             return true;
         }
         return false;
     }
 
-    private void handleLanding(Room room, Point2D posBelow) {
-        if (this.sinking) {
-            onFinishedMovement(room, posBelow);
-            this.sinking = false; // Parou de cair
+    private void attemptDestruction(Room room, GameObject destObj) {
+        if (destObj instanceof Destroyable destroyable) {
+            // Tenta destruir o objeto abaixo ex. Trunk
+            if (destroyable.canBeDestroyedBy(this)) {
+                destroyable.onDestroyed(room);
+                // O objeto cai no próximo tick, não instantaneamente
+            }
         }
-    }
-
-    // Movable interface
-    @Override
-    public void onStartMovement() {
-        this.sinking = true;
-    }
-
-    @Override
-    public boolean isMoving() {
-        return this.sinking;
-    }
-
-    // Metodo abstrato da classe abstrata GameObject
-    @Override
-    public boolean blocksMovement(GameObject gameCharacter) {
-        return true;
-    }
-
-    @Override
-    public int getLayer() {
-        return super.LAYER_ITEMS;
     }
 }
