@@ -1,2 +1,0 @@
-teclas,tempo
-100 500
