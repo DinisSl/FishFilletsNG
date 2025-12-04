@@ -1,5 +1,4 @@
 # Project exclude paths
 /out/
-src/pt/iscte/poo/game/GridLoader.java
-src/changes.txt
+.idea
 /src/gather.py
