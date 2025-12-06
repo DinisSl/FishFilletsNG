@@ -21,6 +21,7 @@ public class GameEngine implements Observer {
     private Room currentRoom;
     // Guarda o índice da Room atual na lista rooms
     private int currentRoomNumber;
+    private final ScoreKeeper scoreKeeper;
     public int lastTickProcessed = 0;
 
     private GameEngine() {
@@ -32,6 +33,7 @@ public class GameEngine implements Observer {
         this.currentRoom = this.rooms.getFirst();
         // Atribui o currentRoomNumber a 0
         this.currentRoomNumber = 0;
+        this.scoreKeeper = ScoreKeeper.getInstance();
     }
 
     public static GameEngine getInstance() { // devolve a referência para o singleton,
@@ -68,8 +70,9 @@ public class GameEngine implements Observer {
         ImageGUI.getInstance().update();
     }
 
-    public void endGame(String message) {
-        ImageGUI.getInstance().showMessage("Fim do jogo: ", message);
+    public void endGame() {
+        // Quando o jogo termina chama finishGame e passa o tempo atual do sistema
+        this.scoreKeeper.finishGame(System.currentTimeMillis());
         // Termina a instância do gui
         ImageGUI.getInstance().dispose();
         // Termina o programa com o status 0
@@ -94,13 +97,17 @@ public class GameEngine implements Observer {
 
             // Se a tecla premida for uma direção válida
             if (Direction.isDirection(k)) {
+                // Incrementa totalMoves para registar o número de movimentos do jogo
+                this.scoreKeeper.incrementTotalMoves();
+                ImageGUI.getInstance().setStatusMessage(this.scoreKeeper.getTotalMoves() + " movimentos");
+
                 // Vê se a room Atual já foi concluída
                 boolean roomFinished = processMovement(Direction.directionFor(k));
 
                 if (roomFinished) {
                     // Se for a ultima sala acaba o jogo
                     if (this.currentRoom == this.rooms.getLast()) {
-                        endGame("Sucesso, fim do jogo!!!");
+                        endGame();
                     } else {
                         // Se não for a última sala acaba esta e começa a proxima
                         ImageGUI.getInstance().clearImages();
