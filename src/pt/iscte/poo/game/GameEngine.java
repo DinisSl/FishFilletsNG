@@ -119,9 +119,8 @@ public class GameEngine implements Observer {
 
         int t = ImageGUI.getInstance().getTicks();
 
-        while (this.lastTickProcessed < t) {
+        while (this.lastTickProcessed < t)
             processTick();
-        }
 
         ImageGUI.getInstance().update();
     }

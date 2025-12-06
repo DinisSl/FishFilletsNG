@@ -31,10 +31,9 @@ public class ScoreKeeper {
      * @return A instância de ScoreKeeper.
      */
     public static ScoreKeeper getInstance() {
-        if (instance == null) {
-            // Cria a instância apenas se for a primeira vez
+        if (instance == null)
             instance = new ScoreKeeper();
-        }
+
         return instance;
     }
 
@@ -66,7 +65,9 @@ public class ScoreKeeper {
     }
 
     /**
-     * Lê, ordena, reescreve o ficheiro csv e no fim mostra o Scoreboard.
+     * Lê, ordena, reescreve o ficheiro csv apenas com as 10 melhores pontuações
+     * ordenadas, atualiza a lista apenas com as 10 melhores pontuações
+     * e no fim mostra o Scoreboard.
      */
     public void updateAndDisplayScoreboard() {
         List<String> lines = readScoreboardLines();
@@ -77,6 +78,8 @@ public class ScoreKeeper {
         lines.sort(timeComparator());
 
         writeTopTenScoreboard(lines);
+
+        lines = readScoreboardLines();
 
         showScoreboard(lines);
     }
