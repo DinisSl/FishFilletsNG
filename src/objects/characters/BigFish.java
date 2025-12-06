@@ -34,27 +34,27 @@ public class BigFish extends GameCharacter {
      * o que existe nessa posição. Dependendo do tipo de objeto encontrado, podem
      * ocorrer várias situações:
      *
-     * 1 - Verifica se o próximo objeto é null se for verifica as condições de saída
+     * - Verifica se o próximo objeto é null se for verifica as condições de saída
      * com room.handleExit();
      *
-     * 2 - Obtem a lista de todos os Game Objects presentes na posição calculada
+     * - Obtem a lista de todos os Game Objects presentes na posição calculada
      *
-     * 3 - Verifica se o próximo Game Object bloqueia o movimento do Game Character e
+     * - Verifica se o próximo Game Object bloqueia o movimento do Game Character e
      * se o mesmo não é uma instância de Movable.
-     *  3A - Se assim for verifica as colisões com objetos do tipo Deadly
+     *  -- Se assim for verifica as colisões com objetos do tipo Deadly
      *  'checkDeadlyCollision(obj, room)'. Se o Game Character tiver morrido devolve
      *  true se contrário false '!room.getActiveGC().contains(this)'
      *
-     * 4 - Verifica as colisões comuns aos objetos que implementam PhysicsObject
+     * - Verifica as colisões comuns aos objetos que implementam PhysicsObject
      * 'checkCommonCollisions(nextObj, room)'
      *
-     * 5 - Depois verifica se o próximo Game Object bloqueia o movimento do Game Character
-     *  5A - Se bloquear, depois verifica se é Movable e se pode ser empurrado por este Game
+     * - Depois verifica se o próximo Game Object bloqueia o movimento do Game Character
+     *  -- Se bloquear, depois verifica se é Movable e se pode ser empurrado por este Game
      *  Character nesta direção 'canBePushedBy(this, direction)'
-     *  5B - Por fim tenta mover os objetos na direção 'direction' porque o BigFish pode empurrar vários
+     *  -- Por fim tenta mover os objetos na direção 'direction' porque o BigFish pode empurrar vários
      *  objetos. Chama 'attemptChainPush(direction, vector, room)' implementado na classe Game Character
      *
-     *  6 - Se não bloquear é porque se está a querer mover para um espaço vazio, ou seja,
+     *  - Se não bloquear é porque se está a querer mover para um espaço vazio, ou seja,
      *  só contem água, sangue ou uma explosão. Move apenas o próprio Game Character com
      *  'moveSelf(vector, room)'
      *
@@ -72,7 +72,7 @@ public class BigFish extends GameCharacter {
             return room.handleExit();
 
         List<GameObject> nextObjs = room.getGrid().getObjectsAt(nextPos);
-
+        // Serve apenas para a caneca dentro da parede com buraco
         for (GameObject obj : nextObjs) {
             if (obj.blocksMovement(this) && !(obj instanceof Movable)) {
                 checkDeadlyCollision(obj, room);

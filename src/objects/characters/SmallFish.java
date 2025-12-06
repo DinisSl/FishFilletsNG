@@ -32,20 +32,20 @@ public class SmallFish extends GameCharacter implements FitsInHole {
      * o que existe nessa posição. Dependendo do tipo de Game Object encontrado pode mover
      * ambos o Game Object e o Game Character ou apenas o Game Character, ou sair da Room atual
      *
-     * 1 - Verifica se o próximo objeto é null se for verifica as condições de saída
+     * - Verifica se o próximo objeto é null se for verifica as condições de saída
      * com room.handleExit();
      * 
-     * 2 - Verifica as colisões comuns aos objetos que implementam PhysicsObject
+     * - Verifica as colisões comuns aos objetos que implementam PhysicsObject
      * 'checkCommonCollisions(nextObj, room)'
      * 
-     * 3 - Depois verifica se o próximo Game Object bloqueia o movimento do Game Character  
-     *  3A - Se bloquear, depois verifica se é Movable e se pode ser empurrado por este Game
+     * - Depois verifica se o próximo Game Object bloqueia o movimento do Game Character
+     *  -- Se bloquear, depois verifica se é Movable e se pode ser empurrado por este Game
      *  Character nesta direção 'canBePushedBy(this, direction)'
-     *  3B - Por fim verifica se o objeto reune as condições para ser empurrado 'push(room,
+     *  -- Por fim verifica se o objeto reune as condições para ser empurrado 'push(room,
      *  nextPos, pushTo)' se reunir é movido e o mesmo acontece ao Game Character 
      *  movido com 'moveSelf(vector, room)'
      *  
-     *  4 - Se não bloquear é porque se está a querer mover para um espaço vazio, ou seja,
+     *  - Se não bloquear é porque se está a querer mover para um espaço vazio, ou seja,
      *  só contem água, sangue ou uma explosão. Move apenas o próprio Game Character com
      *  'moveSelf(vector, room)'
      * 
