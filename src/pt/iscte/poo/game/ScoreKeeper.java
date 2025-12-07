@@ -1,19 +1,18 @@
 package pt.iscte.poo.game;
 
+import objects.base.GameCharacter;
 import pt.iscte.poo.gui.ImageGUI;
 
 import java.io.*;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class ScoreKeeper {
     private static ScoreKeeper instance;
     private final File FILE = new File("scoreboard.csv");
 
-    private int totalMoves;
+    private final Map<String, Integer> characterMoveCounts;
+
     private final long startTime;
 
     /* -------------------------------------------------------------------------
@@ -21,8 +20,8 @@ public class ScoreKeeper {
      -------------------------------------------------------------------------*/
 
     private ScoreKeeper() {
-        this.totalMoves = 0;
         this.startTime = System.currentTimeMillis();
+        this.characterMoveCounts = new HashMap<>();
     }
 
     /**
@@ -37,16 +36,60 @@ public class ScoreKeeper {
         return instance;
     }
 
-    /* -------------------------------------------------------------------------
-     GETTERS E SETTERS
-     -------------------------------------------------------------------------*/
+    /*-----------------------------------------------------------
+    CHARACTER MOVE COUNT MANAGEMENT
+    -----------------------------------------------------------*/
 
-    public int getTotalMoves() {
-        return totalMoves;
+    public int calculateTotalMoves() {
+        int total = 0;
+        for (int numOfMoves : this.characterMoveCounts.values()) {
+            total += numOfMoves;
+        }
+        return total;
     }
 
-    public void incrementTotalMoves() {
-        this.totalMoves++;
+    /**
+     * Incrementa o contador de movimentos para o GameCharacter correspondenete.
+     *
+     * Não usamos o getName() da classe Game Character porque varia,
+     * por exemplo 'bigFishLeft e bigFishRight'
+     *
+     * Se o hashMap já tiver registado o Game Character, vamos buscar
+     * o seu número de movimentos e adicionamos 1.
+     * Se não então adicionamos o GameCharacter ao hashMap e damos set
+     * ao número de movimentos para 1 porque foi o seu primeiro
+     *
+     * @param gc O GameCharacter que acabou de se mover.
+     */
+    public void incrementCharacterMovesCount(GameCharacter gc) {
+        String key = gc.getClass().getSimpleName();
+
+        if (this.characterMoveCounts.containsKey(key)) {
+            int count = this.characterMoveCounts.get(key);
+            this.characterMoveCounts.put(key, count + 1);
+        } else {
+            this.characterMoveCounts.put(key, 1);
+        }
+    }
+
+    /**
+     * Retira do hashMap a nome de cada Game Character e passa essa informação
+     * para uma String
+     *
+     * @return string com o status dos movimentos de cada GC
+     */
+    public String generateMovesStatusMessage() {
+        if (this.characterMoveCounts.isEmpty())
+            return "No characters active.";
+
+        StringBuilder sb = new StringBuilder("| ");
+
+        for (Map.Entry<String, Integer> entry : this.characterMoveCounts.entrySet()) {
+            sb.append(entry.getKey()).append(": ");
+            sb.append(entry.getValue()).append(" movimentos | ");
+        }
+
+        return sb.toString();
     }
 
     /* -------------------------------------------------------------------------
@@ -60,7 +103,7 @@ public class ScoreKeeper {
      */
     public void finishGame(Long finishTime) {
         long timePassed = finishTime - this.startTime;
-        saveScore(this.totalMoves, timePassed);
+        saveScore(calculateTotalMoves(), timePassed);
         updateAndDisplayScoreboard();
     }
 

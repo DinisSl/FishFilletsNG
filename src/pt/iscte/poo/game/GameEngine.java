@@ -71,7 +71,7 @@ public class GameEngine implements Observer {
     }
 
     public void endGame() {
-        // Quando o jogo termina chama finishGame e passa o tempo atual do sistema
+        // Quando o jogo termina chama finishGame e passamos o tempo atual do sistema
         this.scoreKeeper.finishGame(System.currentTimeMillis());
         // Termina a instância do gui
         ImageGUI.getInstance().dispose();
@@ -97,12 +97,11 @@ public class GameEngine implements Observer {
 
             // Se a tecla premida for uma direção válida
             if (Direction.isDirection(k)) {
-                // Incrementa totalMoves para registar o número de movimentos do jogo
-                this.scoreKeeper.incrementTotalMoves();
-                ImageGUI.getInstance().setStatusMessage(this.scoreKeeper.getTotalMoves() + " movimentos");
 
                 // Vê se a room Atual já foi concluída
                 boolean roomFinished = processMovement(Direction.directionFor(k));
+
+                ImageGUI.getInstance().setStatusMessage(this.scoreKeeper.generateMovesStatusMessage());
 
                 if (roomFinished) {
                     // Se for a ultima sala acaba o jogo
@@ -139,7 +138,10 @@ public class GameEngine implements Observer {
         GameCharacter gc = this.currentRoom.getCurrentGameCharacter();
         boolean wantsExit = gc.processMovement(direction, this.currentRoom);
 
-        if (!wantsExit) return false;
+        if (!wantsExit) {
+            this.scoreKeeper.incrementCharacterMovesCount(gc);
+            return false;
+        }
 
         currentRoom.removeObject(gc);
         if (this.currentRoom.noCharactersLeft()) return true;
