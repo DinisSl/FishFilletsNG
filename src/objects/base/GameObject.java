@@ -2,6 +2,7 @@ package objects.base;
 
 import objects.characters.BigFish;
 import objects.characters.SmallFish;
+import objects.effects.Petrol;
 import objects.fixedObjects.HoledWall;
 import objects.fixedObjects.SteelBeam;
 import objects.fixedObjects.Trunk;
@@ -40,6 +41,7 @@ public abstract class GameObject implements ImageTile {
             case 'A' -> new Anchor(point);
             case 'Y' -> new Trunk(point);
             case 'Q' -> new Buoy(point);
+            case 'P' -> new Petrol(point);
 
             default -> throw new IllegalArgumentException("Character inválido: " + character + " na posição " + point);
         };

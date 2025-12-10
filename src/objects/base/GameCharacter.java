@@ -20,11 +20,17 @@ public abstract class GameCharacter extends GameObject implements LoadBearer {
     // Serve para guardar o lado para que o peixe está a olhar (RIGHT OU LEFT)
     private Direction currentDirection;
 
+    private boolean isBlocked;
+
     public GameCharacter(Point2D p) {
         super(p);
         // Ele olha inicialmente para a esquerda
         this.currentDirection = Direction.LEFT;
+        this.isBlocked = false;
     }
+
+    public boolean getIsBlocked() { return this.isBlocked; }
+    public void setBlocked(boolean isBlocked) { this.isBlocked = isBlocked; }
 
     /*-----------------------------------------------------------
     MÉTODOS ABSTRATOS (subclasses devem implementar)
@@ -69,6 +75,9 @@ public abstract class GameCharacter extends GameObject implements LoadBearer {
 
     // Metodo utilitário comum para realizar o movimento final se estiver livre
     public void moveSelf(Vector2D vector, Room room) {
+        if (isBlocked)
+            return;
+
         Point2D destination = getPosition().plus(vector);
 
         updateCurrentDirection(vector);
